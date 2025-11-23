@@ -124,3 +124,51 @@ def chat_node(state: ChatState):
     return {"messages": [response]}
 
 tool_node = ToolNode(tools)
+
+
+
+
+
+# -----------------------------
+# 6. SQLite Checkpoint (Colab supported)
+# -----------------------------
+conn = sqlite3.connect("chatbot.db", check_same_thread=False)
+checkpointer = SqliteSaver(conn=conn)
+
+# -----------------------------
+# 7. LangGraph Workflow
+# -----------------------------
+graph = StateGraph(ChatState)
+
+graph.add_node("chat_node", chat_node)
+graph.add_node("tools", tool_node)
+
+graph.add_edge(START, "chat_node")
+graph.add_conditional_edges("chat_node", tools_condition)
+graph.add_edge("tools", "chat_node")
+
+chatbot = graph.compile(checkpointer=checkpointer)
+
+
+
+# -----------------------------
+# 8. Helper
+# -----------------------------
+def retrieve_all_threads():
+    all_threads = []
+    for c in checkpointer.list(None):
+        all_threads.append(c.config["configurable"]["thread_id"])
+    return all_threads
+
+print("✅ Chatbot with Gemini is ready in Colab!")
+
+#
+
+
+
+respone  = chatbot.invoke(
+    {"messages": [{"role": "user", "content": "I have a chest pain from two days."}]},
+    config={"configurable": {"thread_id": "t1"}}
+    )
+
+print(respone["messages"][-1].content )
