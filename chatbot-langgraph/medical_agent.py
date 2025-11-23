@@ -51,3 +51,76 @@ doctors = [
     }
 ]
 
+
+# Add doctors to Chroma DB
+for doc in doctors:
+    embedding = embedder.encode(doc["description"]).tolist()
+    collection.add(
+        ids=[doc["name"]],
+        metadatas=[doc],
+        embeddings=[embedding],
+        documents=[doc["description"]]
+    )
+
+
+
+
+@tool
+def symptom_checker(user_symptoms: str) -> dict:
+
+    """
+    Suggest doctors based on user symptoms.
+
+    Args:
+        user_symptoms (str): The symptoms provided by the user.
+
+    Returns:
+        dict: A dictionary containing the user symptoms and suggested doctors.
+    """
+
+    user_embedding = embedder.encode(user_symptoms).tolist()
+    results = collection.query(query_embeddings=[user_embedding], n_results=3)
+    suggested_doctors = []
+    for name, meta in zip(results['ids'][0], results['metadatas'][0]):
+        suggested_doctors.append(meta)
+    return {"user_symptoms": user_symptoms, "suggested_doctors": suggested_doctors}
+
+
+
+# -----------------------------
+# 1. Gemini API Key (Colab Safe)
+# -----------------------------
+GOOGLE_API_KEY = "AIzaSyB0uWGwvEcvSoYoG-J342H9E_3eCiFMxMQ"
+
+if GOOGLE_API_KEY == "" or GOOGLE_API_KEY == "YOUR_GEMINI_API_KEY_HERE":
+    raise Exception("❌ Please add your Gemini API Key before running!")
+
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    api_key=GOOGLE_API_KEY,
+    temperature=0.5,
+)
+
+
+
+tools = [symptom_checker]
+llm_with_tools = llm.bind_tools(tools)
+
+
+# -----------------------------
+# 4. State
+# -----------------------------
+class ChatState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+
+
+# -----------------------------
+# 5. Chat Node
+# -----------------------------
+def chat_node(state: ChatState):
+    messages = state["messages"]
+    response = llm_with_tools.invoke(messages)
+    return {"messages": [response]}
+
+tool_node = ToolNode(tools)
