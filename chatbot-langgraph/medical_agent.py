@@ -62,6 +62,62 @@ for doc in doctors:
         documents=[doc["description"]]
     )
 
+appointments_booking_list = []
+
+
+@tool
+def appointments_booking(
+    patient_name: str,
+    phone_number: str,
+    doctor_name: str,
+    appointment_date: str,
+    appointment_time: str
+) -> dict:
+    """
+    Book a new medical appointment for a patient.
+    
+    This tool ONLY books a new appointment.
+    
+    Parameters:
+    - patient_name: Name of the patient
+    - phone_number: Contact number
+    - doctor_name: Doctor to book appointment with
+    - appointment_date: Date of appointment (YYYY-MM-DD)
+    - appointment_time: Time of appointment (HH:MM)
+
+    Returns:
+    - status: success/error
+    - message: human-readable result
+    - appointment: appointment details (when successful)
+    """
+
+    new_appointment = {
+        "patient_name": patient_name,
+        "phone_number": phone_number,
+        "doctor_name": doctor_name,
+        "appointment_date": appointment_date,
+        "appointment_time": appointment_time,
+        "status": "confirmed"
+    }
+
+    # Save in the in-memory appointment list
+    appointments_booking_list.append(new_appointment)
+
+    return {
+        "status": "success",
+        "message": f"Appointment booked with {doctor_name} on {appointment_date} at {appointment_time}.",
+        "appointment": new_appointment
+    }
+
+
+@tool
+def cancellation_booking():
+    pass
+
+
+@tool
+def reseduling_booking():
+    pass
 
 
 
@@ -166,9 +222,26 @@ print("✅ Chatbot with Gemini is ready in Colab!")
 
 
 
+system_prompt = """You are a Medical Appointment Booking Assistant. Your job is to understand symptoms, match users with the best doctors from the Chroma vector database, and help them book, reschedule, or cancel appointments. You must be polite, clear, and safe.
+
+Rules:
+- Never give medical diagnosis or prescriptions.
+- For emergency symptoms: advise hospital visit.
+- When symptoms are provided, create embeddings and search Chroma for best doctor matches.
+- Always show top 3 doctors with name, specialty, experience, and timings.
+- Ask for confirmation before booking or rescheduling.
+- Tone must be friendly and simple.
+- Never hallucinate doctor details; only use database values."""
+
+
+messages = [
+    {"role": "system", "content": system_prompt},
+    {"role": "user", "content": "I have a head pain from two days."}
+]
+
 respone  = chatbot.invoke(
-    {"messages": [{"role": "user", "content": "I have a chest pain from two days."}]},
-    config={"configurable": {"thread_id": "t1"}}
+    {"messages": messages},
+    config={"configurable": {"thread_id": "t2"}}
     )
 
 print(respone["messages"][-1].content )
