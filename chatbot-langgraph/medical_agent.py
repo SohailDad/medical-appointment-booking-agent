@@ -19,7 +19,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 
 # imports tools
 from tools.appointments_booking import appointments_booking
-from tools.appointments_cancelling import appointments_cancelling
+# from tools.appointments_cancelling import appointments_cancelling
 from tools.symptom_checker import symptom_checker
 
 
@@ -41,7 +41,7 @@ llm = ChatGoogleGenerativeAI(
 
 
 
-tools = [symptom_checker, appointments_booking, appointments_cancelling]
+tools = [symptom_checker, appointments_booking]
 llm_with_tools = llm.bind_tools(tools)
 
 
@@ -115,14 +115,36 @@ Rules:
 - Never hallucinate doctor details; only use database values."""
 
 
-messages = [
-    {"role": "system", "content": system_prompt},
-    {"role": "user", "content": "I have a head pain from two days."}
-]
+while True:
+  user_input = input("Enter your message: ")
 
-respone  = chatbot.invoke(
+  messages = [
+      {"role": "system", "content": system_prompt},
+      {"role": "user", "content": user_input}
+  ]
+
+  respone  = chatbot.invoke(
     {"messages": messages},
-    config={"configurable": {"thread_id": "t2"}}
+    config={"configurable": {"thread_id": "t5"}}
     )
 
-print(respone["messages"][-1].content )
+  print(respone["messages"][-1].content )
+
+  if user_input.lower() == "exit":
+    break
+
+
+
+
+
+# messages = [
+#     {"role": "system", "content": system_prompt},
+#     {"role": "user", "content": "I have a head pain from two days."}
+# ]
+
+# respone  = chatbot.invoke(
+#     {"messages": messages},
+#     config={"configurable": {"thread_id": "t2"}}
+#     )
+
+# print(respone["messages"][-1].content )

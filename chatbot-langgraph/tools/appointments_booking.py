@@ -42,6 +42,7 @@ def appointments_booking(
     # Save in the in-memory appointment list
     appointments_booking_list.append(new_appointment)
 
+    print("total apointment: ",len(appointments_booking_list))
     return {
         "status": "success",
         "message": f"Appointment booked with {doctor_name} on {appointment_date} at {appointment_time}.",
