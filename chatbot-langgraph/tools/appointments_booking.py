@@ -2,7 +2,7 @@ from langchain.tools import tool
 from datetime import datetime
 import re
 import uuid
-from ..utilities.check_conflict import check_conflict, validate_date
+from ..utilities.check_conflict import check_conflict, validate_date, validate_time
 appointments_booking_list = []
 
 
@@ -24,14 +24,14 @@ def validate_phone(phone: str) -> bool:
 #         return False
 
 
-def validate_time(time_str: str) -> bool:
-    # """Validate time format (HH:MM)."""
-    """Valid 24-hour HH:MM time."""
-    try:
-        datetime.strptime(time_str, '%H:%M')
-        return True
-    except ValueError:
-        return False
+# def validate_time(time_str: str) -> bool:
+#     # """Validate time format (HH:MM)."""
+#     """Valid 24-hour HH:MM time."""
+#     try:
+#         datetime.strptime(time_str, '%H:%M')
+#         return True
+#     except ValueError:
+#         return False
 
 
 # def check_conflict(doctor: str, date: str, time: str) -> bool:
