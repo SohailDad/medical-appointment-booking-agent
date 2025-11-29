@@ -16,18 +16,21 @@ from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.sqlite import SqliteSaver
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # imports tools
-from tools.appointments_booking import appointments_booking
+# from tools.appointments_booking import appointments_booking
 # from tools.appointments_cancelling import appointments_cancelling
-from tools.symptom_checker import symptom_checker
+from tools import symptom_checker, appointments_booking, appointments_cancelling, appointments_reschedule
 
 
 
 # -----------------------------
 # 1. Gemini API Key (Colab Safe)
 # -----------------------------
-GOOGLE_API_KEY = "AIzaSyB0uWGwvEcvSoYoG-J342H9E_3eCiFMxMQ"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if GOOGLE_API_KEY == "" or GOOGLE_API_KEY == "YOUR_GEMINI_API_KEY_HERE":
     raise Exception("❌ Please add your Gemini API Key before running!")
