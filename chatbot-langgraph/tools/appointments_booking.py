@@ -2,8 +2,7 @@ from langchain.tools import tool
 from datetime import datetime
 import re
 import uuid
-
-# In-memory storage for appointments
+from ..utilities.check_conflict import check_conflict, validate_date
 appointments_booking_list = []
 
 
@@ -15,17 +14,19 @@ def validate_phone(phone: str) -> bool:
     return bool(re.match(pattern, phone.strip()))
 
 
-def validate_date(date_str: str) -> bool:
-    """Validate date format and ensure it's not in the past."""
-    try:
-        appt_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        return appt_date >= datetime.now().date()
-    except ValueError:
-        return False
+# def validate_date(date_str: str) -> bool:
+#     # """Validate date format and ensure it's not in the past."""
+#     """Valid YYYY-MM-DD date, not in past."""
+#     try:
+#         appt_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+#         return appt_date >= datetime.now().date()
+#     except ValueError:
+#         return False
 
 
 def validate_time(time_str: str) -> bool:
-    """Validate time format (HH:MM)."""
+    # """Validate time format (HH:MM)."""
+    """Valid 24-hour HH:MM time."""
     try:
         datetime.strptime(time_str, '%H:%M')
         return True
@@ -33,15 +34,15 @@ def validate_time(time_str: str) -> bool:
         return False
 
 
-def check_conflict(doctor: str, date: str, time: str) -> bool:
-    """Check if doctor already has appointment at this time."""
-    for appt in appointments_booking_list:
-        if (appt['doctor_name'].lower() == doctor.lower() and
-            appt['appointment_date'] == date and
-            appt['appointment_time'] == time and
-            appt['status'] != 'cancelled'):
-            return True
-    return False
+# def check_conflict(doctor: str, date: str, time: str) -> bool:
+#     """Check if doctor already has appointment at this time."""
+#     for appt in appointments_booking_list:
+#         if (appt['doctor_name'].lower() == doctor.lower() and
+#             appt['appointment_date'] == date and
+#             appt['appointment_time'] == time and
+#             appt['status'] != 'cancelled'):
+#             return True
+#     return False
 
 
 # ==================== APPOINTMENT BOOKING TOOL ====================
