@@ -2,7 +2,7 @@ from langchain.tools import tool
 from datetime import datetime
 import re
 import uuid
-from ..utilities.check_conflict import check_conflict, validate_date, validate_time
+from ..utilities import check_conflict, validate_date, validate_time
 appointments_booking_list = []
 
 
