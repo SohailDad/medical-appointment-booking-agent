@@ -44,7 +44,7 @@ llm = ChatGoogleGenerativeAI(
 
 
 
-tools = [symptom_checker, appointments_booking]
+tools = [symptom_checker, appointments_booking, appointments_cancelling, appointments_reschedule]
 llm_with_tools = llm.bind_tools(tools)
 
 
