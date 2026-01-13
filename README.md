@@ -2,6 +2,6 @@
 
 
 ### For creating virual environment 
-<code>python -m venv myenv</code>
+<code>python -m venv venv</code>
 ### Activate the virtual environment
-<code>myenv\Scripts\activate</code>
+<code>venv\Scripts\activate</code>
