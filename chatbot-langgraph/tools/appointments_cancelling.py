@@ -5,7 +5,7 @@ from datetime import datetime
 appointments_booking_list = []
 
 @tool
-def cancel_appointment(appointment_id: str) -> dict:
+def appointments_cancelling(appointment_id: str) -> dict:
     """Cancel an appointment using appointment_id (Production-level)."""
 
     for appt in appointments_booking_list:

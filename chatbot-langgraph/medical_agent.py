@@ -2,7 +2,8 @@
 
 
 # !pip install langgraph.checkpoint.sqlite
-# !pip install SentenceTransformer Client
+# !pip install langgraph.checkpoint.mongodb
+# !pip install sentence_transformers Client
 
 
 # import sqlite3
@@ -13,20 +14,24 @@ from typing import TypedDict, Annotated
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import BaseMessage
 
+
+
 from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 # from langgraph.checkpoint.sqlite import SqliteSaver
 # For mongoDb set up
-from langchain_mongodb import MongoDBSaver
 from pymongo import MongoClient
+from langgraph.checkpoint.mongodb.saver import MongoDBSaver
 
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
-from tools import symptom_checker, appointments_booking, appointments_cancelling, appointments_reschedule
+from tools.appointments_cancelling import appointments_cancelling
+from tools.appointments_reschedule import appointments_reschedule
+from tools.symptom_checker import symptom_checker
+from tools.appointments_booking import appointments_booking
 
 
 
