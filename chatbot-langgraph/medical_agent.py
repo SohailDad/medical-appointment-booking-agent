@@ -6,7 +6,8 @@
 
 
 import sqlite3
-import requests
+# import requests
+
 from typing import TypedDict, Annotated
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -16,6 +17,10 @@ from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.sqlite import SqliteSaver
+# For mongoDb set up
+# from langchain_mongodb import MongoDBSaver
+# from pymongo import MongoClient
+
 import os
 from dotenv import load_dotenv
 
@@ -72,6 +77,14 @@ tool_node = ToolNode(tools)
 # -----------------------------
 conn = sqlite3.connect("chatbot.db", check_same_thread=False)
 checkpointer = SqliteSaver(conn=conn)
+
+# For Mongo Db setup.
+# client = MongoClient("mongodb://localhost:27017")
+# db = client["clinic_ai"]
+# collection = db["chat_threads"]
+
+# checkpointer = MongoDBSaver(collection)
+
 
 # -----------------------------
 # 7. LangGraph Workflow
