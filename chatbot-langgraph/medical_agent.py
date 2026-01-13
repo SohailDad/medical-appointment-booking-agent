@@ -20,9 +20,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-# imports tools
-# from tools.appointments_booking import appointments_booking
-# from tools.appointments_cancelling import appointments_cancelling
+
 from tools import symptom_checker, appointments_booking, appointments_cancelling, appointments_reschedule
 
 
