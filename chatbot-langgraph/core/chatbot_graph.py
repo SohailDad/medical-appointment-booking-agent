@@ -38,5 +38,5 @@ graph.add_edge(START, "chat_node")
 graph.add_conditional_edges("chat_node", tools_condition)
 graph.add_edge("tools", "chat_node")
 
-chatbot = graph.compile(checkpointer=checkpointer)
+# chatbot = graph.compile(checkpointer=checkpointer)
 streaming_chatbot = graph.compile(checkpointer=checkpointer)
