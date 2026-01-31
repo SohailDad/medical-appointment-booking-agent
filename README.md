@@ -5,3 +5,6 @@
 <code>python -m venv venv</code>
 ### Activate the virtual environment
 <code>venv\Scripts\activate</code>
+
+### Run the Fast API server
+<code>uvicorn fastapi_server:app --reload</code>
