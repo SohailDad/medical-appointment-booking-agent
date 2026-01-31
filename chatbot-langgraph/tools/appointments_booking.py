@@ -130,6 +130,8 @@ def appointments_booking(
     # Save to appointments list
     appointments_booking_list.append(new_appointment)
 
+    # Save in the database
+
     print(f"Total appointments: {len(appointments_booking_list)}")
 
     return {
