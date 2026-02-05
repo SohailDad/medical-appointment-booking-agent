@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.checkpoint.mongodb.saver import MongoDBSaver
 
 load_dotenv()
 
@@ -16,3 +17,4 @@ llm = ChatGoogleGenerativeAI(
 client = MongoClient("mongodb://localhost:27017")
 db = client["clinic_ai"]
 collection = db["chat_threads"]
+checkpointer = MongoDBSaver(collection)

@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from core.chatbot_graph import streaming_chatbot
+from core.chatbot_graph import chatbot
 import asyncio
 import json
 
@@ -35,7 +35,7 @@ async def generate_stream(message: str, thread_id: str) -> AsyncGenerator[str, N
         tool_calls_detected = []
         
         # Use astream_events for streaming (LangGraph streaming API)
-        async for event in streaming_chatbot.astream_events(
+        async for event in chatbot.astream_events(
             {"messages": messages},
             config=config,
             version="v1"

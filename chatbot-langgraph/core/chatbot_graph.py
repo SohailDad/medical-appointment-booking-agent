@@ -3,9 +3,9 @@ from langchain_core.messages import BaseMessage
 from langgraph.graph import StateGraph, START
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
-from langgraph.checkpoint.mongodb.saver import MongoDBSaver
 
-from core.config import llm, collection
+
+from core.config import llm, collection, checkpointer
 from tools.appointments_cancelling import appointments_cancelling
 from tools.appointments_reschedule import appointments_reschedule
 from tools.symptom_checker import symptom_checker
@@ -29,7 +29,7 @@ def chat_node(state: ChatState):
 
 tool_node = ToolNode(tools)
 
-checkpointer = MongoDBSaver(collection)
+# checkpointer = MongoDBSaver(collection)
 
 graph = StateGraph(ChatState)
 graph.add_node("chat_node", chat_node)
@@ -38,5 +38,5 @@ graph.add_edge(START, "chat_node")
 graph.add_conditional_edges("chat_node", tools_condition)
 graph.add_edge("tools", "chat_node")
 
-# chatbot = graph.compile(checkpointer=checkpointer)
-streaming_chatbot = graph.compile(checkpointer=checkpointer)
+chatbot = graph.compile(checkpointer=checkpointer)
+# streaming_chatbot = graph.compile(checkpointer=checkpointer)

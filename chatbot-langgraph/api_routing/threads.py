@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from models.schemas import ThreadsResponse
-from core.chatbot_graph import chatbot, checkpointer
-from core.config import collection
+from core.chatbot_graph import chatbot
+from core.config import collection, checkpointer
 
 router = APIRouter(tags=["Threads"])
 
@@ -15,5 +15,6 @@ async def get_threads():
 
 @router.delete("/thread/{thread_id}")
 async def delete_thread(thread_id: str):
+    # collection.delete_many({"thread_id": thread_id})
     collection.delete_many({"thread_id": thread_id})
     return {"message": "Deleted"}
