@@ -1,0 +1,29 @@
+import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+
+export class BookAppointmentDto {
+    @IsNotEmpty()
+    patient_name: string;
+
+    @IsPhoneNumber()
+    phone_number: string;
+
+    @IsNotEmpty()
+    doctor_name: string;
+
+    @IsNotEmpty()
+    appointment_date: string;
+
+    @IsNotEmpty()
+    appointment_time: string;
+
+    @IsNotEmpty()
+    appointment_id: string;
+}
+
+export class RescheduleAppointmentDto {
+    @IsNotEmpty()
+    appointment_date: string;
+
+    @IsNotEmpty()
+    appointment_time: string;
+}
