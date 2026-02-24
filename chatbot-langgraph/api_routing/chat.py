@@ -1,35 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from models.schemas import ChatRequest, ChatResponse
-# from core.chatbot_graph import chatbot, streaming_chatbot
 from utilities.generate_stream import generate_stream
+
+
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 @router.post("/", response_model=ChatResponse)
-# async def chat(request: ChatRequest):
-#     try:
-#         messages = [
-#             {"role": "system", "content": SYSTEM_PROMPT},
-#             {"role": "user", "content": request.message}
-#         ]
-
-#         response = chatbot.invoke(
-#             {"messages": messages},
-#             config={"configurable": {"thread_id": request.thread_id}}
-#         )
-
-#         last_message = response["messages"][-1]
-#         return ChatResponse(
-#             response=str(last_message.content),
-#             thread_id=request.thread_id,
-#         )
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-# @router.post("/chat/stream")
-async def chat_stream(request: ChatRequest):
+async def chat_stream(request: Request, body: ChatRequest):
     """
     Stream chat responses in real-time using Server-Sent Events (SSE).
     This mimics ChatGPT's streaming behavior.
@@ -39,8 +18,15 @@ async def chat_stream(request: ChatRequest):
     - Messages are JSON encoded
     - Types: 'connection', 'text', 'tool_start', 'tool_end', 'done', 'error'
     """
+    # Get Authorization header
+    auth_header = request.headers.get("authorization")
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
     return StreamingResponse(
-        generate_stream(request.message, request.thread_id),
+        generate_stream(body.message, body.thread_id, auth_header),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
