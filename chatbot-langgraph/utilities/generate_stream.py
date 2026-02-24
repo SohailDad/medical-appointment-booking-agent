@@ -21,7 +21,7 @@ async def generate_stream(message: str, thread_id: str) -> AsyncGenerator[str, N
     """
     try:
         # Send initial connection message
-        yield f"data: {json.dumps({'type': 'connection', 'status': 'connected'})}\n\n"
+        # yield f"data: {json.dumps({'type': 'connection', 'status': 'connected'})}\n\n"
         
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -69,28 +69,30 @@ async def generate_stream(message: str, thread_id: str) -> AsyncGenerator[str, N
                                         await asyncio.sleep(0.01)
             
             # Handle tool calls
-            elif kind == "on_tool_start":
-                tool_name = event.get("name", "")
-                tool_input = event.get("data", {}).get("input", {})
+        #     elif kind == "on_tool_start":
+        #         tool_name = event.get("name", "")
+        #         tool_input = event.get("data", {}).get("input", {})
                 
-                tool_calls_detected.append({
-                    "name": tool_name,
-                    "args": tool_input
-                })
+        #         tool_calls_detected.append({
+        #             "name": tool_name,
+        #             "args": tool_input
+        #         })
                 
-                # Send tool execution notification
-                yield f"data: {json.dumps({'type': 'tool_start', 'tool_name': tool_name})}\n\n"
-                await asyncio.sleep(0.01)
+        #         # Send tool execution notification
+        #         yield f"data: {json.dumps({'type': 'tool_start', 'tool_name': tool_name})}\n\n"
+        #         await asyncio.sleep(0.01)
             
-            elif kind == "on_tool_end":
-                tool_name = event.get("name", "")
-                # Send tool completion notification
-                yield f"data: {json.dumps({'type': 'tool_end', 'tool_name': tool_name})}\n\n"
-                await asyncio.sleep(0.01)
+        #     elif kind == "on_tool_end":
+        #         tool_name = event.get("name", "")
+        #         # Send tool completion notification
+        #         yield f"data: {json.dumps({'type': 'tool_end', 'tool_name': tool_name})}\n\n"
+        #         await asyncio.sleep(0.01)
         
-        # Send completion message
-        yield f"data: {json.dumps({'type': 'done', 'thread_id': thread_id, 'tool_calls': tool_calls_detected})}\n\n"
+        # # Send completion message
+        # yield f"data: {json.dumps({'type': 'done', 'thread_id': thread_id, 'tool_calls': tool_calls_detected})}\n\n"
         
     except Exception as e:
         # Send error message
         yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+
