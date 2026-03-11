@@ -2,7 +2,12 @@ from langchain.tools import tool
 from datetime import datetime
 import re
 import uuid
-from utilities import check_conflict, validate_date, validate_time
+# from utilities import check_conflict, validate_date, validate_time
+from utilities.check_conflict import check_conflict
+from utilities.validate_date import validate_date
+from utilities.validate_time import validate_time
+from langchain_core.runnables import RunnableConfig
+
 appointments_booking_list = []
 
 
@@ -52,7 +57,8 @@ def appointments_booking(
     phone_number: str,
     doctor_name: str,
     appointment_date: str,
-    appointment_time: str
+    appointment_time: str,
+    config: RunnableConfig
 ) -> dict:
     """
     Book a new medical appointment for a patient.
@@ -71,6 +77,9 @@ def appointments_booking(
             - appointment (dict): Appointment details (if successful)
             - appointment_id (str): Unique identifier (if successful)
     """
+
+    token = config["configurable"].get("token")
+    print("token: ",token)
 
     # Validate patient name
     if not patient_name or not patient_name.strip():

@@ -5,6 +5,7 @@ from utilities.generate_stream import generate_stream
 
 
 
+
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 @router.post("/", response_model=ChatResponse)
@@ -24,9 +25,11 @@ async def chat_stream(request: Request, body: ChatRequest):
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-
+    token = auth_header
+    print("token:",token)
+    
     return StreamingResponse(
-        generate_stream(body.message, body.thread_id, auth_header),
+        generate_stream(body.message, body.thread_id, token),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

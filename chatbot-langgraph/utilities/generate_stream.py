@@ -15,7 +15,7 @@ Rules:
 - Tone must be friendly and simple.
 - Never hallucinate doctor details; only use database values."""
 
-async def generate_stream(message: str, thread_id: str, auth_header: str) -> AsyncGenerator[str, None]:
+async def generate_stream(message: str, thread_id: str, token: str) -> AsyncGenerator[str, None]:
     """
     Generate streaming responses using Server-Sent Events (SSE) format.
     """
@@ -28,7 +28,7 @@ async def generate_stream(message: str, thread_id: str, auth_header: str) -> Asy
             {"role": "user", "content": message}
         ]
         
-        config = {"configurable": {"thread_id": thread_id, "auth_header": auth_header}}
+        config = {"configurable": {"thread_id": thread_id,"token": token}}
         
         # Stream the response
         accumulated_text = ""
