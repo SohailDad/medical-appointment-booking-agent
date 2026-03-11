@@ -26,7 +26,6 @@ async def chat_stream(request: Request, body: ChatRequest):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     token = auth_header
-    print("token:",token)
     
     return StreamingResponse(
         generate_stream(body.message, body.thread_id, token),

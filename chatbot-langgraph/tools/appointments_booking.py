@@ -7,6 +7,7 @@ from utilities.check_conflict import check_conflict
 from utilities.validate_date import validate_date
 from utilities.validate_time import validate_time
 from langchain_core.runnables import RunnableConfig
+import httpx
 
 appointments_booking_list = []
 
@@ -78,8 +79,6 @@ def appointments_booking(
             - appointment_id (str): Unique identifier (if successful)
     """
 
-    token = config["configurable"].get("token")
-    print("token: ",token)
 
     # Validate patient name
     if not patient_name or not patient_name.strip():
@@ -139,6 +138,11 @@ def appointments_booking(
     # Save to appointments list
     appointments_booking_list.append(new_appointment)
 
+    token = config["configurable"].get("token")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get("https://external-api.com/data")
+    
     # Save in the database
 
     print(f"Total appointments: {len(appointments_booking_list)}")
