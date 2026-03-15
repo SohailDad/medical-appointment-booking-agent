@@ -1,5 +1,5 @@
 from langchain.tools import tool
-from datetime import datetime
+# from datetime import datetime
 import os
 import re
 import uuid
@@ -18,7 +18,7 @@ NEST_BACKEND_URL = os.getenv("NEST_BACKEND_URL")
 
 
 def validate_phone(phone: str) -> bool:
-    pattern = r'^\+?[\d\s\-()]{10,}$'
+    pattern = r'^\+?[\d\s\-()]{12,}$'
     return bool(re.match(pattern, phone.strip()))
 
 
@@ -36,7 +36,7 @@ async def appointments_booking(
 
     Args:
         patient_name (str): Full name of the patient
-        phone_number (str): Contact phone number (10+ digits)
+        phone_number (str): Contact phone number (12+ digits)
         doctor_name (str): Name of the doctor to book with
         appointment_date (str): Date in YYYY-MM-DD format
         appointment_time (str): Time in HH:MM format (24-hour)
@@ -75,7 +75,7 @@ async def appointments_booking(
 
     # ================= CREATE APPOINTMENT =================
 
-    appointment_id = str(uuid.uuid4())
+    appointment_id = str(uuid.uuid4())[:8]
 
     new_appointment = {
         "appointment_id": appointment_id,
@@ -83,9 +83,9 @@ async def appointments_booking(
         "phone_number": phone_number.strip(),
         "doctor_name": doctor_name.strip(),
         "appointment_date": appointment_date,
-        "appointment_time": appointment_time,
-        "status": "confirmed",
-        "created_at": datetime.utcnow().isoformat()
+        "appointment_time": appointment_time
+        # "status": "confirmed",
+        # "created_at": datetime.utcnow().isoformat()
     }
 
     # ================= AUTH =================
@@ -103,10 +103,11 @@ async def appointments_booking(
 
     # ================= CALL BACKEND =================
 
+
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
-                NEST_BACKEND_URL,
+                f"{NEST_BACKEND_URL}/appointments/book",
                 json=new_appointment,
                 headers=headers
             )
