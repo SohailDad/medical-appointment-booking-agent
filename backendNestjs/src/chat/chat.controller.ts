@@ -18,7 +18,8 @@ export class ChatController {
     async chatStream(@Body() chatDto: ChatDto, @Res() res: Response, @Req() req: any) {
         try {
             chatDto.thread_id = req.user._id
-            const stream = await this.chatService.forwardStream(chatDto);
+            const token = req.headers.authorization;
+            const stream = await this.chatService.forwardStream(chatDto,token);
 
             // Set headers for SSE (Server-Sent Events) or plain text streaming
             res.setHeader('Content-Type', 'text/event-stream');
@@ -49,8 +50,6 @@ export class ChatController {
             });
 
         } catch (error) {
-            console.error('Error initiating stream:', error);
-
             if (!res.headersSent) {
                 res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
                     .json({

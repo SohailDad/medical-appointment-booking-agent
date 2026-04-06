@@ -62,7 +62,7 @@ export class AppointmentService {
         return appointment.save();
     }
 
-    async findByPatient(patientName: string): Promise<Appointment[]> {
-        return this.appointmentModel.find({ patient_name: patientName });
+    async findByPatient(patient_email: string): Promise<Appointment[]> {
+        return this.appointmentModel.find({ patient_email: patient_email });
     }
 }

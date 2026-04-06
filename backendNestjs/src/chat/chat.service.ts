@@ -11,7 +11,7 @@ export class ChatService {
         private readonly configService: ConfigService,
     ) { }
 
-    async forwardStream(chatDto: ChatDto) {
+    async forwardStream(chatDto: ChatDto, token: string) {
         const url = this.configService.get<string>('CHATBOT_API_URL');
         if (!url) {
             throw new HttpException(
@@ -25,6 +25,9 @@ export class ChatService {
                 this.httpService.post(url, chatDto, {
                     responseType: 'stream',
                     timeout: 60000, // 60 seconds timeout
+                    headers: {
+                        Authorization: token,
+                    },
                 })
             );
 
