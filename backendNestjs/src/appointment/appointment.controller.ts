@@ -32,6 +32,6 @@ export class AppointmentController {
     @Get('my')
     @Roles(UserRole.PATIENT)
     async getMyAppointments(@Req() req: any) {
-        return this.appointmentService.findByPatient(req.user.email);  //pass the req.user.email(is ly kih agr kise na kise or ka ly book krana ho to pir os ka ly email lekna lazmi.)
+        return this.appointmentService.findByPatient(req.user._id);  //pass the req.user.email(is ly kih agr kise na kise or ka ly book krana ho to pir os ka ly email lekna lazmi.)
     }
 }

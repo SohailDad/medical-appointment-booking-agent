@@ -77,8 +77,10 @@ async def appointments_booking(
 
     appointment_id = str(uuid.uuid4())[:8]
 
+    thread_id = config.get("configurable", {}).get("thread_id")
     new_appointment = {
         "appointment_id": appointment_id,
+        "patient_id":thread_id,
         "patient_name": patient_name.strip(),
         "phone_number": phone_number.strip(),
         "doctor_name": doctor_name.strip(),
