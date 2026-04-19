@@ -7,6 +7,8 @@ from langgraph.checkpoint.mongodb.saver import MongoDBSaver
 load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+MONGO_URL = os.getenv("MONGO_URL")
+
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
@@ -14,7 +16,7 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.5,
 )
 
-client = MongoClient("mongodb://localhost:27017")
+client = MongoClient(MONGO_URL)
 db = client["clinic_ai"]
 collection = db["chat_threads"]
 checkpointer = MongoDBSaver(collection)
