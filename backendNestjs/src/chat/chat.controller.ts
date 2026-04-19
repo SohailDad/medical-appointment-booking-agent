@@ -49,7 +49,7 @@ export class ChatController {
                 stream.destroy();
             });
 
-        } catch (error) {
+        } catch (error: any) {
             if (!res.headersSent) {
                 res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR)
                     .json({

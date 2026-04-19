@@ -17,7 +17,7 @@ app.enableCors({
     transform: true,
   }));
 
-  await app.listen(3000,"192.168.10.40");
+  await app.listen(3000,"192.168.10.48");
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

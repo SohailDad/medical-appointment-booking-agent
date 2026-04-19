@@ -1,14 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({ _id: false })
 export class Availability {
-    @Prop({ required: true })
-    day: string; // e.g., 'Monday'
+    @Prop({
+        required: true,
+        enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    })
+    day: string;
 
     @Prop({ required: true })
-    timeSlots: string[]; // e.g., ['09:00', '10:00']
+    startTime: string;
+
+    @Prop({ required: true })
+    endTime: string;
+
+    @Prop()
+    breakStart?: string;
+
+    @Prop()
+    breakEnd?: string;
 }
+
 
 @Schema({ timestamps: true })
 export class Doctor extends Document {
@@ -24,7 +37,7 @@ export class Doctor extends Document {
     @Prop({ required: true })
     experience: number;
 
-    @Prop({ type: [Availability], default: [] })
+    @Prop({ type: [Availability], default: [] , _id: false})
     availability: Availability[];
 
     @Prop({ required: true })

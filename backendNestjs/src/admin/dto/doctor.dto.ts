@@ -2,12 +2,15 @@ import { IsEmail, IsNotEmpty, IsNumber, IsArray, ValidateNested, IsString } from
 import { Type } from 'class-transformer';
 
 export class AvailabilityDto {
-    @IsNotEmpty()
-    day: string;
+  @IsNotEmpty()
+  @IsString()
+  day: string;
 
-    @IsArray()
-    @IsString({ each: true })
-    timeSlots: string[];
+  @IsNotEmpty()
+  startTime: string;
+
+  @IsNotEmpty()
+  endTime: string;
 }
 
 export class CreateDoctorDto {
