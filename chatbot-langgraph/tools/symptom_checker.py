@@ -1,6 +1,7 @@
 from langchain.tools import tool
 from chromadb import Client
 from sentence_transformers import SentenceTransformer
+from core.config import collection1
 
 # Initialize Chroma
 client = Client()
@@ -9,6 +10,9 @@ collection = client.get_or_create_collection("doctors")
 
 # Embedding model
 embedder = SentenceTransformer("all-MiniLM-L6-v2")
+
+
+doctors = collection1.find()
 
 # Doctor data
 doctors = [

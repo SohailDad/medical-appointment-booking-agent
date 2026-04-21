@@ -20,3 +20,6 @@ client = MongoClient(MONGO_URL)
 db = client["clinic_ai"]
 collection = db["chat_threads"]
 checkpointer = MongoDBSaver(collection)
+
+db1 = client["medical-booking"]
+collection1 = db1["doctors"]
