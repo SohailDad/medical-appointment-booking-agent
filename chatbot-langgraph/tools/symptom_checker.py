@@ -1,61 +1,67 @@
-from langchain.tools import tool
-from chromadb import Client
-from sentence_transformers import SentenceTransformer
-from core.config import collection1
-import asyncio
+# from langchain.tools import tool
+# from core.chroma import collection, embedder
+# from chromadb import Client
+# from sentence_transformers import SentenceTransformer
+# from core.config import collection1
+# import asyncio
 
-# Initialize Chroma
-client = Client()
-collection = client.get_or_create_collection("doctors")
+# # Initialize Chroma
+# client = Client()
+# collection = client.get_or_create_collection("doctors")
 
-# Embedding model
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-
-
-async def get_doctors():
-    cursor = collection1.find(
-        {},
-        {
-            "name": 1,
-            "specialization": 1,
-            "experience": 1,
-            "availability": 1,
-            "description": 1,
-            "_id": 0,
-        }
-    )
-    return await cursor.to_list()
+# # Embedding model
+# embedder = SentenceTransformer("all-MiniLM-L6-v2")
 
 
-async def populate_chroma():
-    """Fetch doctors from MongoDB and populate ChromaDB."""
-    doctors = await get_doctors()
+# async def get_doctors():
+#     cursor = collection1.find(
+#         {},
+#         {
+#             "name": 1,
+#             "specialization": 1,
+#             "experience": 1,
+#             "availability": 1,
+#             "description": 1,
+#             "_id": 0,
+#         }
+#     )
+#     return await cursor.to_list()
 
-    if not doctors:
-        print("Warning: No doctors found in the database.")
-        return
 
-    for doc in doctors:
-        print("Doctor:", doc)
+# async def populate_chroma():
+#     """Fetch doctors from MongoDB and populate ChromaDB."""
+#     doctors = await get_doctors()
 
-        # Skip docs missing required fields
-        if not doc.get("description") or not doc.get("name"):
-            print(f"Skipping incomplete record: {doc}")
-            continue
+#     if not doctors:
+#         print("Warning: No doctors found in the database.")
+#         return
 
-        embedding = embedder.encode(doc["description"]).tolist()
-        collection.add(
-            ids=[doc["name"]],
-            metadatas=[{k: str(v) for k, v in doc.items()}],  # Chroma requires string metadata values
-            embeddings=[embedding],
-            documents=[doc["description"]]
-        )
+#     for doc in doctors:
+#         print("Doctor:", doc)
 
-    print(f"Populated ChromaDB with {len(doctors)} doctors.")
+#         # Skip docs missing required fields
+#         if not doc.get("description") or not doc.get("name"):
+#             print(f"Skipping incomplete record: {doc}")
+#             continue
+
+#         embedding = embedder.encode(doc["description"]).tolist()
+#         collection.add(
+#             ids=[doc["name"]],
+#             metadatas=[{k: str(v) for k, v in doc.items()}],  # Chroma requires string metadata values
+#             embeddings=[embedding],
+#             documents=[doc["description"]]
+#         )
+
+#     print(f"Populated ChromaDB with {len(doctors)} doctors.")
 
 
 # Run at startup
-asyncio.run(populate_chroma())
+# asyncio.run(populate_chroma())
+# populate_chroma()
+
+# tools/symptom_checker.py
+from langchain.tools import tool
+from core.chroma import collection, embedder
 
 
 @tool
@@ -64,10 +70,10 @@ def symptom_checker(user_symptoms: str) -> dict:
     Suggest doctors based on user symptoms.
 
     Args:
-        user_symptoms (str): The symptoms provided by the user.
+        user_symptoms (str): Symptoms described by the user.
 
     Returns:
-        dict: A dictionary containing the user symptoms and suggested doctors.
+        dict: Suggested doctors matching the symptoms.
     """
     if not user_symptoms.strip():
         return {"error": "No symptoms provided.", "suggested_doctors": []}
@@ -75,14 +81,17 @@ def symptom_checker(user_symptoms: str) -> dict:
     user_embedding = embedder.encode(user_symptoms).tolist()
     results = collection.query(query_embeddings=[user_embedding], n_results=3)
 
-    suggested_doctors = [
-        meta for meta in results["metadatas"][0]
-    ]
+    if not results["ids"][0]:
+        return {
+            "user_symptoms": user_symptoms,
+            "suggested_doctors": [],
+            "message": "No matching doctors found.",
+        }
 
-    return {"user_symptoms": user_symptoms, "suggested_doctors": suggested_doctors}
-
-
-
+    return {
+        "user_symptoms": user_symptoms,
+        "suggested_doctors": results["metadatas"][0]
+    }
 
 
 

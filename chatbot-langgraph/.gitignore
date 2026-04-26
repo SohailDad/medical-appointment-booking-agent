@@ -1,3 +1,6 @@
 /venv
 chatbot.db
 .env
+
+# .gitignore
+chroma_db/

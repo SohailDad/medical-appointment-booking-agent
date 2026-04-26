@@ -12,3 +12,13 @@ class ChatResponse(BaseModel):
 
 class ThreadsResponse(BaseModel):
     threads: List[str]
+
+
+class ChromaRequest(BaseModel):
+    name: str
+    specialization: str
+    experience: str
+    availability: str
+    description: str
+
+
