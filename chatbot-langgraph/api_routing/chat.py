@@ -21,7 +21,6 @@ async def chat_stream(request: Request, body: ChatRequest):
     """
     # Get Authorization header
     auth_header = request.headers.get("authorization")
-
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
