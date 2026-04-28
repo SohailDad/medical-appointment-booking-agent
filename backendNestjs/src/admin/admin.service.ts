@@ -88,12 +88,7 @@ export class AdminService {
                 }
             }
 
-            // Update in MongoDB
-            await this.doctorModel.findByIdAndUpdate(
-                id,
-                updateDoctorDto,
-                { new: true }
-            );
+           
 
             //Sync with FastAPI (ChromaDB)
             const url = this.configService.get<string>('CHATBOT_API_URL');
@@ -107,15 +102,22 @@ export class AdminService {
 
             const chromadbUpdateDoctor = {
                 // name: updateDoctorDto.name,
-                specialization: updateDoctorDto.specialization,
-                experience: updateDoctorDto.experience,
-                availability: updateDoctorDto.availability,
-                description: updateDoctorDto.description,
+                "specialization": updateDoctorDto.specialization,
+                "experience": updateDoctorDto.experience,
+                "availability": updateDoctorDto.availability,
+                "description": updateDoctorDto.description,
                 // email: updateDoctorDto.email, // important for ID
             };
 
             await firstValueFrom(
-                this.httpService.post(`${url}/doctors/${updateDoctorDto.name}`, chromadbUpdateDoctor)
+                this.httpService.put(`${url}/doctors/${updateDoctorDto.name}`, chromadbUpdateDoctor)
+            );
+
+             // Update in MongoDB
+            await this.doctorModel.findByIdAndUpdate(
+                id,
+                updateDoctorDto,
+                { new: true }
             );
 
             return {
@@ -165,7 +167,7 @@ export class AdminService {
 
             // Use same unique ID used in Chroma (email recommended)
             await firstValueFrom(
-                this.httpService.post(`${url}/doctors/${doctor.name}`)
+                this.httpService.delete(`${url}/doctors/${doctor.name}`)
             );
 
             return {
@@ -190,3 +192,5 @@ export class AdminService {
         return this.appointmentModel.find();
     }
 }
+
+
