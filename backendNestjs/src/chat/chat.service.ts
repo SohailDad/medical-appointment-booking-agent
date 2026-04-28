@@ -22,7 +22,7 @@ export class ChatService {
 
         try {
             const response = await firstValueFrom(
-                this.httpService.post(url, chatDto, {
+                this.httpService.post(`${url}/chat`, chatDto, {
                     responseType: 'stream',
                     timeout: 60000, // 60 seconds timeout
                     headers: {
@@ -32,7 +32,7 @@ export class ChatService {
             );
 
             return response.data;
-        } catch (error) {
+        } catch (error:any) {
             throw new HttpException(
                 error.response?.data?.message || 'Error connecting to streaming service',
                 error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
