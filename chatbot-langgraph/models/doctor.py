@@ -10,6 +10,7 @@ class AvailabilitySlot(BaseModel):
 
 
 class DoctorRequest(BaseModel):
+    doctor_id:str
     name: str
     specialization: str
     experience: int
@@ -18,6 +19,7 @@ class DoctorRequest(BaseModel):
 
 
 class DoctorUpdateRequest(BaseModel):
+    name: Optional[str] = None
     specialization: Optional[str] = None
     experience: Optional[int] = None
     availability: Optional[List[AvailabilitySlot]] = None
