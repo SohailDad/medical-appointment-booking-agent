@@ -39,18 +39,19 @@ export class AdminService {
                 );
             }
 
-            const chromadbDoctorData = {
-                "name": createDoctorDto.name,
-                "specialization": createDoctorDto.specialization,
-                "experience": createDoctorDto.experience,
-                "availability": createDoctorDto.availability,
-                "description": createDoctorDto.description
-            }
             const doctor = new this.doctorModel(createDoctorDto);
+            await doctor.save();
+            const chromadbDoctorData = {
+                "doctor_id": doctor._id,
+                "name": doctor.name,
+                "specialization": doctor.specialization,
+                "experience": doctor.experience,
+                "availability": doctor.availability,
+                "description": doctor.description
+            }
             await firstValueFrom(
                 this.httpService.post(`${url}/doctors/`, chromadbDoctorData)
             );
-            await doctor.save();
             return {
                 statusCode: HttpStatus.CREATED,
                 message: "Doctor created successfully"
@@ -88,7 +89,7 @@ export class AdminService {
                 }
             }
 
-           
+
 
             //Sync with FastAPI (ChromaDB)
             const url = this.configService.get<string>('CHATBOT_API_URL');
@@ -99,26 +100,28 @@ export class AdminService {
                     HttpStatus.INTERNAL_SERVER_ERROR
                 );
             }
-
-            const chromadbUpdateDoctor = {
-                // name: updateDoctorDto.name,
-                "specialization": updateDoctorDto.specialization,
-                "experience": updateDoctorDto.experience,
-                "availability": updateDoctorDto.availability,
-                "description": updateDoctorDto.description,
-                // email: updateDoctorDto.email, // important for ID
-            };
-
-            await firstValueFrom(
-                this.httpService.put(`${url}/doctors/${updateDoctorDto.name}`, chromadbUpdateDoctor)
-            );
-
-             // Update in MongoDB
-            await this.doctorModel.findByIdAndUpdate(
+            // Update in MongoDB
+            const updateDoctor = await this.doctorModel.findByIdAndUpdate(
                 id,
                 updateDoctorDto,
                 { new: true }
             );
+            if (!updateDoctor) {
+                throw new NotFoundException('Doctor not found');
+            }
+
+            const chromadbUpdateDoctor = {
+                "name": updateDoctor.name,
+                "specialization": updateDoctor.specialization,
+                "experience": updateDoctor.experience,
+                "availability": updateDoctor.availability,
+                "description": updateDoctor.description,
+            };
+            const doctor_id = updateDoctor._id.toString()
+            await firstValueFrom(
+                this.httpService.put(`${url}/doctors/${doctor_id}`, chromadbUpdateDoctor)
+            );
+
 
             return {
                 statusCode: HttpStatus.OK,
@@ -167,7 +170,7 @@ export class AdminService {
 
             // Use same unique ID used in Chroma (email recommended)
             await firstValueFrom(
-                this.httpService.delete(`${url}/doctors/${doctor.name}`)
+                this.httpService.delete(`${url}/doctors/${doctor._id}`)
             );
 
             return {
