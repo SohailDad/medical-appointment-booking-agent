@@ -129,26 +129,26 @@ async def list_doctors():
         )
 
 
-@router.get("/{doctor_id}", response_model=DoctorResponse)
-async def get_doctor(doctor_id: str):
-    try:
-        existing = collection.get(ids=[doctor_id])
-        if not existing["ids"]:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Doctor with id '{doctor_id}' not found."
-            )
+# @router.get("/{doctor_id}", response_model=DoctorResponse)
+# async def get_doctor(doctor_id: str):
+#     try:
+#         existing = collection.get(ids=[doctor_id])
+#         if not existing["ids"]:
+#             raise HTTPException(
+#                 status_code=404,
+#                 detail=f"Doctor with id '{doctor_id}' not found."
+#             )
 
-        doctor = {"doctor_id": doctor_id, **existing["metadatas"][0]}
-        return {"message": "Doctor found.", "doctor": doctor}
+#         doctor = {"doctor_id": doctor_id, **existing["metadatas"][0]}
+#         return {"message": "Doctor found.", "doctor": doctor}
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to retrieve doctor: {str(e)}"
-        )
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=500,
+#             detail=f"Failed to retrieve doctor: {str(e)}"
+#         )
 
 
 
