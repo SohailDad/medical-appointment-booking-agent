@@ -64,6 +64,9 @@ async def appointments_booking(
 
     # ================= VALIDATION =================
 
+    # get doctor_id internally — user never sees this
+    doctor_id = _get_doctor_id_by_name(doctor_name)
+
     if not patient_name.strip():
         return {"status": "error", "message": "Patient name cannot be empty."}
 
@@ -96,6 +99,7 @@ async def appointments_booking(
         "patient_id":thread_id,
         "patient_name": patient_name.strip(),
         "phone_number": phone_number.strip(),
+        "doctor_id": 
         "doctor_name": doctor_name.strip(),
         "appointment_date": appointment_date,
         "appointment_time": appointment_time
