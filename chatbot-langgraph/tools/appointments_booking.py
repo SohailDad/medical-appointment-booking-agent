@@ -99,7 +99,7 @@ async def appointments_booking(
         "patient_id":thread_id,
         "patient_name": patient_name.strip(),
         "phone_number": phone_number.strip(),
-        "doctor_id": 
+        "doctor_id": doctor_id.strip(),
         "doctor_name": doctor_name.strip(),
         "appointment_date": appointment_date,
         "appointment_time": appointment_time
