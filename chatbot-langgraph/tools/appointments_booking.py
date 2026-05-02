@@ -10,6 +10,7 @@ from langchain_core.runnables import RunnableConfig
 from utilities.check_conflict import check_conflict
 from utilities.validate_date import validate_date
 from utilities.validate_time import validate_time
+from core.chroma import collection, embedder
 
 logger = logging.getLogger("booking_tool")
 
@@ -20,6 +21,18 @@ NEST_BACKEND_URL = os.getenv("NEST_BACKEND_URL")
 def validate_phone(phone: str) -> bool:
     pattern = r'^\+?[\d\s\-()]{12,}$'
     return bool(re.match(pattern, phone.strip()))
+
+
+
+def _get_doctor_id_by_name(doctor_name: str) -> str | None:
+    """Internal helper — fetch doctor_id from ChromaDB by name."""
+    results = collection.get(
+        where={"name": {"$eq": doctor_name}}  # filter by name
+    )
+    if results["ids"]:
+        return results["ids"][0]  # return doctor_id
+    return None
+
 
 
 @tool
