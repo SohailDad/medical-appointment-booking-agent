@@ -3,9 +3,15 @@ import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 export class BookAppointmentDto {
     @IsNotEmpty()
     patient_name: string;
+ 
+    @IsNotEmpty()
+    patient_id: string;
 
     @IsPhoneNumber()
     phone_number: string;
+
+    @IsNotEmpty()
+    doctor_id: string;
 
     @IsNotEmpty()
     doctor_name: string;
