@@ -1,6 +1,9 @@
 from langchain.tools import tool
 from datetime import datetime
 from utilities import check_conflict, validate_date, validate_time
+import httpx
+from langchain_core.runnables import RunnableConfig
+
 
 
 appointments_booking_list = []
@@ -10,7 +13,8 @@ appointments_booking_list = []
 def appointments_reschedule(
     appointment_id: str,
     new_date: str,
-    new_time: str
+    new_time: str,
+    config: RunnableConfig
 ) -> dict:
     """Reschedule an appointment safely (Production-level)."""
 
@@ -19,6 +23,10 @@ def appointments_reschedule(
 
     if not validate_time(new_time):
         return {"status": "error", "message": "Invalid time format (HH:MM)."}
+
+
+    
+
 
     for appt in appointments_booking_list:
         if appt["appointment_id"] == appointment_id:
