@@ -20,7 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const ChatScreen = () => {
     const navigation = useNavigation();
     const [messages, setMessages] = useState([
-        { id: '1', text: 'Hello! I am your AI Medical Assistant. How can I help you today?', sender: 'bot' }
+        { id: '1', text: 'Hello! I am your AI Medical Assistant. How can I help you today?', sender: 'assistant' }
     ]);
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -36,9 +36,9 @@ const ChatScreen = () => {
             const response = await apiClient.get('/chat/history');
             if (response.data && response.data.conversation) {
                 const formattedMessages = response.data.conversation.map((msg, index) => ({
-                    id: `hist-${index}-${Date.now()}`,
+                    id: msg._id || `hist-${index}-${Date.now()}`,
                     text: msg.content,
-                    sender: msg.role === 'assistant' ? 'bot' : 'user'
+                    sender: msg.role // Directly use 'user' or 'assistant' from DB
                 }));
                 
                 if (formattedMessages.length > 0) {
@@ -57,64 +57,52 @@ const ChatScreen = () => {
 
         const currentText = inputText;
         const userMessage = { id: Date.now().toString(), text: currentText, sender: 'user' };
-        setMessages(prev => [...prev, userMessage]);
+        const botMessageId = (Date.now() + 1).toString();
+        const botPlaceholder = { id: botMessageId, text: '', sender: 'assistant' };
+        
+        // Add both messages in a single update to prevent unnecessary re-renders
+        setMessages(prev => [...prev, userMessage, botPlaceholder]);
         setInputText('');
         setIsTyping(true);
 
-        // Create a placeholder for the bot response
-        const botMessageId = (Date.now() + 1).toString();
-        const botPlaceholder = { id: botMessageId, text: '', sender: 'bot' };
-        setMessages(prev => [...prev, botPlaceholder]);
-
         try {
             const token = await AsyncStorage.getItem('token');
-            const response = await fetch(`${apiClient.defaults.baseURL}/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ message: currentText }),
-            });
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${apiClient.defaults.baseURL}/chat`);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
             let accumulatedText = '';
-            let finished = false;
+            let buffer = '';
+            let processedIndex = 0;
 
-            while (!finished) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    finished = true;
-                    break;
-                }
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 3 || xhr.readyState === 4) {
+                    const currentResponse = xhr.responseText;
+                    const chunk = currentResponse.substring(processedIndex);
+                    processedIndex = currentResponse.length;
 
-                const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
-                
-                for (const line of lines) {
-                    if (line.trim().startsWith('data: ')) {
-                        const jsonStr = line.replace('data: ', '').trim();
-                        if (jsonStr === '[DONE]') {
-                            finished = true;
-                            break;
-                        }
-                        
+                    buffer += chunk;
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+
+                    let hasUpdates = false;
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        if (!trimmedLine || !trimmedLine.startsWith('data: ')) continue;
+
+                        const jsonStr = trimmedLine.replace('data: ', '').trim();
+                        if (jsonStr === '[DONE]') break;
+
                         try {
                             const data = JSON.parse(jsonStr);
-                            // Support both 'content' (from backend) and 'text' (fallback)
                             const textContent = data.content || data.text;
-                            
+
                             if (textContent && (data.type === 'text' || !data.type)) {
                                 accumulatedText += textContent;
-                                setMessages(prev => prev.map(msg => 
-                                    msg.id === botMessageId ? { ...msg, text: accumulatedText } : msg
-                                ));
+                                hasUpdates = true;
                             }
-                            
-                            // Check for actions
+
                             if (data.action || data.type === 'action') {
                                 handleAction(data, botMessageId);
                             }
@@ -122,21 +110,37 @@ const ChatScreen = () => {
                             console.log('Error parsing chunk:', e);
                         }
                     }
+
+                    // Batch the text update for this chunk
+                    if (hasUpdates) {
+                        setMessages(prev => prev.map(msg =>
+                            msg.id === botMessageId ? { ...msg, text: accumulatedText } : msg
+                        ));
+                    }
                 }
-            }
-            setIsTyping(false);
+
+                if (xhr.readyState === 4) {
+                    setIsTyping(false);
+                    if (xhr.status !== 200 && xhr.status !== 201 && xhr.status !== 0) {
+                        throw new Error(`HTTP error! status: ${xhr.status}`);
+                    }
+                }
+            };
+
+            xhr.onerror = () => {
+                throw new Error('Network request failed');
+            };
+
+            xhr.send(JSON.stringify({ message: currentText }));
 
         } catch (error) {
             console.error('Chat error', error);
-            // Remove the empty bot placeholder if it failed
             setMessages(prev => prev.filter(msg => msg.id !== botMessageId || msg.text !== ''));
             
-            const isNetworkError = !error.response && !error.message.includes('status');
-            const textMsg = isNetworkError ? "No internet connection" : "Sorry, I'm having trouble connecting to the server.";
             const errorMessage = {
                 id: (Date.now() + 2).toString(),
-                text: textMsg,
-                sender: 'bot'
+                text: "Sorry, I'm having trouble connecting to the server.",
+                sender: 'assistant'
             };
             setMessages(prev => [...prev, errorMessage]);
             setIsTyping(false);
@@ -156,14 +160,14 @@ const ChatScreen = () => {
                         const confirmMsg = {
                             id: Date.now().toString(),
                             text: "Appointment booked successfully",
-                            sender: 'bot'
+                            sender: 'assistant'
                         };
                         setMessages(prev => [...prev, confirmMsg]);
                     } else if (paymentRes.action === 'ERROR') {
                         const errorMsg = {
                             id: Date.now().toString(),
                             text: paymentRes.message || "Payment failed",
-                            sender: 'bot'
+                            sender: 'assistant'
                         };
                         setMessages(prev => [...prev, errorMsg]);
                     }
@@ -173,14 +177,14 @@ const ChatScreen = () => {
             const confirmMsg = {
                 id: Date.now().toString(),
                 text: "Appointment booked successfully",
-                sender: 'bot'
+                sender: 'assistant'
             };
             setMessages(prev => [...prev, confirmMsg]);
         } else if (data.action === 'ERROR') {
             const errorMsg = {
                 id: Date.now().toString(),
                 text: data.message || "Error occurred",
-                sender: 'bot'
+                sender: 'assistant'
             };
             setMessages(prev => [...prev, errorMsg]);
         }
