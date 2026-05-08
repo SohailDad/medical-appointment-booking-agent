@@ -15,6 +15,7 @@ import { colors } from '../../theme/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import apiClient from '../../api/client';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChatScreen = () => {
     const navigation = useNavigation();
@@ -23,7 +24,33 @@ const ChatScreen = () => {
     ]);
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const flatListRef = useRef();
+
+    useEffect(() => {
+        fetchHistory();
+    }, []);
+
+    const fetchHistory = async () => {
+        try {
+            const response = await apiClient.get('/chat/history');
+            if (response.data && response.data.conversation) {
+                const formattedMessages = response.data.conversation.map((msg, index) => ({
+                    id: `hist-${index}-${Date.now()}`,
+                    text: msg.content,
+                    sender: msg.role === 'assistant' ? 'bot' : 'user'
+                }));
+                
+                if (formattedMessages.length > 0) {
+                    setMessages(formattedMessages);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
+        } finally {
+            setIsLoadingHistory(false);
+        }
+    };
 
     const sendMessage = async () => {
         if (!inputText.trim()) return;
@@ -34,16 +61,80 @@ const ChatScreen = () => {
         setInputText('');
         setIsTyping(true);
 
+        // Create a placeholder for the bot response
+        const botMessageId = (Date.now() + 1).toString();
+        const botPlaceholder = { id: botMessageId, text: '', sender: 'bot' };
+        setMessages(prev => [...prev, botPlaceholder]);
+
         try {
-            const response = await apiClient.post('/chat', { message: currentText });
-            const data = response.data;
-            handleAction(data);
+            const token = await AsyncStorage.getItem('token');
+            const response = await fetch(`${apiClient.defaults.baseURL}/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ message: currentText }),
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedText = '';
+            let finished = false;
+
+            while (!finished) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    finished = true;
+                    break;
+                }
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+                
+                for (const line of lines) {
+                    if (line.trim().startsWith('data: ')) {
+                        const jsonStr = line.replace('data: ', '').trim();
+                        if (jsonStr === '[DONE]') {
+                            finished = true;
+                            break;
+                        }
+                        
+                        try {
+                            const data = JSON.parse(jsonStr);
+                            // Support both 'content' (from backend) and 'text' (fallback)
+                            const textContent = data.content || data.text;
+                            
+                            if (textContent && (data.type === 'text' || !data.type)) {
+                                accumulatedText += textContent;
+                                setMessages(prev => prev.map(msg => 
+                                    msg.id === botMessageId ? { ...msg, text: accumulatedText } : msg
+                                ));
+                            }
+                            
+                            // Check for actions
+                            if (data.action || data.type === 'action') {
+                                handleAction(data, botMessageId);
+                            }
+                        } catch (e) {
+                            console.log('Error parsing chunk:', e);
+                        }
+                    }
+                }
+            }
+            setIsTyping(false);
+
         } catch (error) {
             console.error('Chat error', error);
-            const isNetworkError = !error.response;
+            // Remove the empty bot placeholder if it failed
+            setMessages(prev => prev.filter(msg => msg.id !== botMessageId || msg.text !== ''));
+            
+            const isNetworkError = !error.response && !error.message.includes('status');
             const textMsg = isNetworkError ? "No internet connection" : "Sorry, I'm having trouble connecting to the server.";
             const errorMessage = {
-                id: (Date.now() + 1).toString(),
+                id: (Date.now() + 2).toString(),
                 text: textMsg,
                 sender: 'bot'
             };
@@ -52,18 +143,11 @@ const ChatScreen = () => {
         }
     };
 
-    const handleAction = (data) => {
+    const handleAction = (data, messageId) => {
         setIsTyping(false);
         if (!data || !data.action) return;
 
-        if (data.action === 'MESSAGE') {
-            const botMessage = {
-                id: Date.now().toString(),
-                text: data.message || "I'm sorry, I couldn't process that right now.",
-                sender: 'bot'
-            };
-            setMessages(prev => [...prev, botMessage]);
-        } else if (data.action === 'PAYMENT_REQUIRED') {
+        if (data.action === 'PAYMENT_REQUIRED') {
             navigation.navigate('Payment', {
                 amount: data.amount,
                 appointmentData: data.appointmentData,
@@ -93,12 +177,12 @@ const ChatScreen = () => {
             };
             setMessages(prev => [...prev, confirmMsg]);
         } else if (data.action === 'ERROR') {
-            const botMessage = {
+            const errorMsg = {
                 id: Date.now().toString(),
                 text: data.message || "Error occurred",
                 sender: 'bot'
             };
-            setMessages(prev => [...prev, botMessage]);
+            setMessages(prev => [...prev, errorMsg]);
         }
     };
 
@@ -141,6 +225,12 @@ const ChatScreen = () => {
                     contentContainerStyle={styles.listContent}
                     keyboardShouldPersistTaps="handled"
                 />
+
+                {isLoadingHistory && (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={colors.primary} />
+                    </View>
+                )}
 
                 {isTyping && (
                     <View style={styles.typingIndicator}>
@@ -267,6 +357,17 @@ const styles = StyleSheet.create({
     },
     disabledSend: {
         backgroundColor: colors.border,
+    },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 80,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 10,
     },
 });
 
