@@ -21,7 +21,7 @@ export const PatientAppointmentStack = () => (
             options={{ title: 'My Appointments' }}
         />
         <Stack.Screen
-            name="Reports"
+            name="MedicalReports"
             component={ReportsScreen}
             options={{ title: 'Medical Reports' }}
         />

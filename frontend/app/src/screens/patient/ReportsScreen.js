@@ -9,7 +9,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import apiClient from '../../api/client';
 import Toast from 'react-native-toast-message';
 
-const ReportsScreen = () => {
+const ReportsScreen = ({ route, navigation }) => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -48,7 +48,15 @@ const ReportsScreen = () => {
         fetchReports();
     }, []);
 
-    const handleUpload = async () => {
+    useEffect(() => {
+        if (route.params?.autoUpload) {
+            handleUpload(route.params.appointmentId);
+            // Clear params to avoid re-triggering on re-render
+            navigation.setParams({ autoUpload: false });
+        }
+    }, [route.params?.autoUpload]);
+
+    const handleUpload = async (forcedAppointmentId = null) => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
                 type: ['application/pdf', 'image/*'],
@@ -64,6 +72,10 @@ const ReportsScreen = () => {
                     name: file.name,
                     type: file.mimeType || 'application/octet-stream',
                 });
+
+                if (forcedAppointmentId) {
+                    formData.append('appointmentId', forcedAppointmentId);
+                }
 
                 await apiClient.post('/reports/upload', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
@@ -116,12 +128,12 @@ const ReportsScreen = () => {
         <Card style={styles.card}>
             {item.file_type === 'image' && item.file_path ? (
                 <View style={styles.imageContainer}>
-                    <Image 
-                        source={{ uri: getFileUri(item.file_path) }} 
-                        style={styles.listImagePreview} 
+                    <Image
+                        source={{ uri: getFileUri(item.file_path) }}
+                        style={styles.listImagePreview}
                         resizeMode="cover"
                     />
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.expandButton}
                         onPress={() => handleViewReport(item)}
                     >
@@ -137,13 +149,19 @@ const ReportsScreen = () => {
                     />
                 </View>
             )}
-            
+
             <View style={styles.reportDetailsRow}>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.fileName} numberOfLines={1}>{item.report_name || 'Unnamed Report'}</Text>
                     <Text style={styles.fileDetails}>
                         {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString() : 'N/A'} • {item.size || 'Unknown size'}
                     </Text>
+                    {item.appointmentId && (
+                        <View style={styles.appointmentBadge}>
+                            <MaterialCommunityIcons name="link-variant" size={12} color={colors.primary} />
+                            <Text style={styles.appointmentIdLabel}>Appt ID: {item.appointmentId}</Text>
+                        </View>
+                    )}
                 </View>
                 <View style={styles.reportActions}>
                     <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
@@ -172,14 +190,6 @@ const ReportsScreen = () => {
                         </View>
                     }
                 />
-                <View style={styles.footer}>
-                    <MintButton
-                        title="Upload New Report"
-                        onPress={handleUpload}
-                        loading={uploading}
-                        style={styles.uploadButton}
-                    />
-                </View>
             </View>
 
             <Modal
@@ -188,8 +198,8 @@ const ReportsScreen = () => {
                 onRequestClose={() => setIsModalVisible(false)}
             >
                 <View style={styles.modalContainer}>
-                    <TouchableOpacity 
-                        style={styles.modalCloseButton} 
+                    <TouchableOpacity
+                        style={styles.modalCloseButton}
                         onPress={() => setIsModalVisible(false)}
                     >
                         <MaterialCommunityIcons name="close" size={30} color={colors.white} />
@@ -197,18 +207,18 @@ const ReportsScreen = () => {
                     {selectedImage && (
                         <>
                             {imageLoading && (
-                                <ActivityIndicator 
-                                    size="large" 
-                                    color={colors.white} 
-                                    style={styles.modalLoading} 
+                                <ActivityIndicator
+                                    size="large"
+                                    color={colors.white}
+                                    style={styles.modalLoading}
                                 />
                             )}
-                            <Image 
-                                source={{ uri: selectedImage }} 
+                            <Image
+                                source={{ uri: selectedImage }}
                                 style={[
-                                    styles.fullImage, 
+                                    styles.fullImage,
                                     { width: screenWidth, height: screenHeight * 0.8 }
-                                ]} 
+                                ]}
                                 resizeMode="contain"
                                 onLoadStart={() => setImageLoading(true)}
                                 onLoadEnd={() => setImageLoading(false)}
@@ -287,6 +297,22 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: colors.textSecondary,
         marginTop: 2,
+    },
+    appointmentBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.primaryLight,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        alignSelf: 'flex-start',
+        marginTop: 6,
+    },
+    appointmentIdLabel: {
+        fontSize: 11,
+        color: colors.primary,
+        fontWeight: 'bold',
+        marginLeft: 4,
     },
     footer: {
         position: 'absolute',

@@ -102,9 +102,12 @@ const AppointmentsScreen = ({ navigation }) => {
                 </View>
             </View>
 
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={styles.uploadReportButton}
-                onPress={() => navigation.navigate('Reports', { appointmentId: item._id })}
+                onPress={() => navigation.navigate('MedicalReports', { 
+                    appointmentId: item.appointment_id,
+                    autoUpload: true 
+                })}
             >
                 <MaterialCommunityIcons name="file-upload-outline" size={20} color={colors.primary} />
                 <Text style={styles.uploadReportText}>Upload Medical Report</Text>
@@ -114,16 +117,16 @@ const AppointmentsScreen = ({ navigation }) => {
                 <View style={styles.actions}>
                     <TouchableOpacity
                         style={[styles.actionButton, styles.secondaryAction]}
-                        onPress={() => navigation.navigate('Chat', { 
-                            message: `I want to reschedule my appointment with ${item.doctor_name} (ID: ${item.appointment_id || item._id.substring(0, 8)})` 
+                        onPress={() => navigation.navigate('Chat', {
+                            message: `I want to reschedule my appointment with ${item.doctor_name} (ID: ${item.appointment_id || item._id.substring(0, 8)})`
                         })}
                     >
                         <Text style={styles.secondaryActionText}>Reschedule</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.actionButton, styles.dangerAction]}
-                        onPress={() => navigation.navigate('Chat', { 
-                            message: `I want to cancel my appointment with ${item.doctor_name} (ID: ${item.appointment_id || item._id.substring(0, 8)})` 
+                        onPress={() => navigation.navigate('Chat', {
+                            message: `I want to cancel my appointment with ${item.doctor_name} (ID: ${item.appointment_id || item._id.substring(0, 8)})`
                         })}
                     >
                         <Text style={styles.dangerActionText}>Cancel</Text>

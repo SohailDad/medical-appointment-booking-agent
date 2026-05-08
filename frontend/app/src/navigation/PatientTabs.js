@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import PatientHomeScreen from '../screens/patient/PatientHomeScreen';
 import { PatientAppointmentStack } from './PatientAppointmentStack';
+import ReportsScreen from '../screens/patient/ReportsScreen';
 import { PatientChatStack } from './PatientChatStack';
 import ProfileScreen from '../screens/CommonProfileScreen';
 
@@ -16,6 +17,7 @@ export const PatientTabs = () => (
                 let iconName;
                 if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';
                 else if (route.name === 'Appointments') iconName = focused ? 'calendar-check' : 'calendar-check-outline';
+                else if (route.name === 'Reports') iconName = focused ? 'file-document' : 'file-document-outline';
                 else if (route.name === 'Chat') iconName = focused ? 'chat' : 'chat-outline';
                 else if (route.name === 'Profile') iconName = focused ? 'account' : 'account-outline';
                 return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
@@ -33,6 +35,11 @@ export const PatientTabs = () => (
             name="Appointments"
             component={PatientAppointmentStack}
             options={{ headerShown: false }}
+        />
+        <Tab.Screen 
+            name="Reports" 
+            component={ReportsScreen} 
+            options={{ title: 'All Reports' }} 
         />
         <Tab.Screen name="Chat" component={PatientChatStack} options={{ headerShown: false }} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
