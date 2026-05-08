@@ -42,9 +42,9 @@ const AppointmentsScreen = ({ navigation }) => {
             });
             // Dummy data
             setAppointments([
-                { _id: '1', doctor_name: 'Dr. John Smith', appointment_date: '2024-05-20', appointment_time: '10:00 AM', status: 'upcoming', type: 'General Checkup' },
-                { _id: '2', doctor_name: 'Dr. Sarah Adams', appointment_date: '2024-05-22', appointment_time: '02:30 PM', status: 'upcoming', type: 'Follow-up' },
-                { _id: '3', doctor_name: 'Dr. Mike Ross', appointment_date: '2024-05-10', appointment_time: '11:00 AM', status: 'completed', type: 'Dentist' },
+                { _id: '1', appointment_id: 'APT1001', doctor_name: 'Dr. John Smith', appointment_date: '2024-05-20', appointment_time: '10:00 AM', status: 'upcoming', type: 'General Checkup' },
+                { _id: '2', appointment_id: 'APT1002', doctor_name: 'Dr. Sarah Adams', appointment_date: '2024-05-22', appointment_time: '02:30 PM', status: 'upcoming', type: 'Follow-up' },
+                { _id: '3', appointment_id: 'APT1003', doctor_name: 'Dr. Mike Ross', appointment_date: '2024-05-10', appointment_time: '11:00 AM', status: 'completed', type: 'Dentist' },
             ]);
         } finally {
             setLoading(false);
@@ -83,7 +83,7 @@ const AppointmentsScreen = ({ navigation }) => {
             <View style={styles.cardHeader}>
                 <View style={styles.doctorInfo}>
                     <Text style={styles.doctorName}>{item.doctor_name}</Text>
-                    <Text style={styles.typeText}>{item.type}</Text>
+                    <Text style={styles.typeText}>{item.type} • ID: {item.appointment_id || item._id.substring(0, 8)}</Text>
                 </View>
                 <Badge text={item.status} type={item.status === 'upcoming' ? 'primary' : item.status === 'completed' ? 'success' : 'error'} />
             </View>
@@ -105,13 +105,17 @@ const AppointmentsScreen = ({ navigation }) => {
                 <View style={styles.actions}>
                     <TouchableOpacity
                         style={[styles.actionButton, styles.secondaryAction]}
-                        onPress={() => navigation.navigate('RescheduleAppointment', { appointment: item })}
+                        onPress={() => navigation.navigate('Chat', { 
+                            message: `I want to reschedule my appointment with ${item.doctor_name} (ID: ${item.appointment_id || item._id.substring(0, 8)})` 
+                        })}
                     >
                         <Text style={styles.secondaryActionText}>Reschedule</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.actionButton, styles.dangerAction]}
-                        onPress={() => handleCancel(item._id)}
+                        onPress={() => navigation.navigate('Chat', { 
+                            message: `I want to cancel my appointment with ${item.doctor_name} (ID: ${item.appointment_id || item._id.substring(0, 8)})` 
+                        })}
                     >
                         <Text style={styles.dangerActionText}>Cancel</Text>
                     </TouchableOpacity>

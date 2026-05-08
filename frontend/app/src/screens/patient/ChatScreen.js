@@ -17,7 +17,7 @@ import apiClient from '../../api/client';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ChatScreen = () => {
+const ChatScreen = ({ route }) => {
     const navigation = useNavigation();
     const [messages, setMessages] = useState([
         { id: '1', text: 'Hello! I am your AI Medical Assistant. How can I help you today?', sender: 'assistant' }
@@ -30,6 +30,15 @@ const ChatScreen = () => {
     useEffect(() => {
         fetchHistory();
     }, []);
+
+    // Handle initial message from navigation (e.g., reschedule/cancel)
+    useEffect(() => {
+        if (route.params?.message) {
+            sendMessage(route.params.message);
+            // Clear params to avoid resending on re-render
+            navigation.setParams({ message: null });
+        }
+    }, [route.params?.message]);
 
     const fetchHistory = async () => {
         try {
@@ -59,17 +68,18 @@ const ChatScreen = () => {
         }
     };
 
-    const sendMessage = async () => {
-        if (!inputText.trim()) return;
+    const sendMessage = async (overrideText = null) => {
+        const messageToSend = overrideText || inputText;
+        if (!messageToSend.trim()) return;
 
-        const currentText = inputText;
+        const currentText = messageToSend;
         const userMessage = { id: Date.now().toString(), text: currentText, sender: 'user' };
         const botMessageId = (Date.now() + 1).toString();
         const botPlaceholder = { id: botMessageId, text: '', sender: 'assistant' };
         
         // Add both messages in a single update to prevent unnecessary re-renders
         setMessages(prev => [...prev, userMessage, botPlaceholder]);
-        setInputText('');
+        if (!overrideText) setInputText('');
         setIsTyping(true);
 
         try {
