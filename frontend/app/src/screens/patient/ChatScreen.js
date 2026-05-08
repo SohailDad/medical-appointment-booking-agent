@@ -47,6 +47,13 @@ const ChatScreen = () => {
             }
         } catch (error) {
             console.error('Error fetching chat history:', error);
+            // Optionally show a message in chat that history failed
+            const errorMsg = {
+                id: 'err-hist-' + Date.now(),
+                text: "Note: Could not load previous chat history.",
+                sender: 'assistant'
+            };
+            setMessages(prev => [...prev, errorMsg]);
         } finally {
             setIsLoadingHistory(false);
         }
@@ -122,27 +129,49 @@ const ChatScreen = () => {
                 if (xhr.readyState === 4) {
                     setIsTyping(false);
                     if (xhr.status !== 200 && xhr.status !== 201 && xhr.status !== 0) {
-                        throw new Error(`HTTP error! status: ${xhr.status}`);
+                        let serverErrorMessage = "I'm sorry, I'm having trouble connecting to the server right now. Please try again in a few moments.";
+                        try {
+                            const errorObj = JSON.parse(xhr.responseText);
+                            if (errorObj.message) serverErrorMessage = errorObj.message;
+                            else if (errorObj.error) serverErrorMessage = errorObj.error;
+                        } catch (e) {
+                            // If response is not JSON, check if it's a known status
+                            if (xhr.status === 500) {
+                                serverErrorMessage = "The medical assistant is currently unavailable due to a server error. Please try again later.";
+                            }
+                        }
+                        
+                        const errorResponse = {
+                            id: (Date.now() + 3).toString(),
+                            text: serverErrorMessage,
+                            sender: 'assistant'
+                        };
+                        setMessages(prev => {
+                            // Remove placeholder and add error
+                            const filtered = prev.filter(msg => msg.id !== botMessageId || msg.text !== '');
+                            return [...filtered, errorResponse];
+                        });
                     }
                 }
             };
 
             xhr.onerror = () => {
-                throw new Error('Network request failed');
+                const errorResponse = {
+                    id: (Date.now() + 4).toString(),
+                    text: "Network request failed. Please check your internet connection.",
+                    sender: 'assistant'
+                };
+                setMessages(prev => {
+                    const filtered = prev.filter(msg => msg.id !== botMessageId || msg.text !== '');
+                    return [...filtered, errorResponse];
+                });
+                setIsTyping(false);
             };
 
             xhr.send(JSON.stringify({ message: currentText }));
 
         } catch (error) {
             console.error('Chat error', error);
-            setMessages(prev => prev.filter(msg => msg.id !== botMessageId || msg.text !== ''));
-            
-            const errorMessage = {
-                id: (Date.now() + 2).toString(),
-                text: "Sorry, I'm having trouble connecting to the server.",
-                sender: 'assistant'
-            };
-            setMessages(prev => [...prev, errorMessage]);
             setIsTyping(false);
         }
     };
