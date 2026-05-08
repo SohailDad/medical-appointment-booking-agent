@@ -119,6 +119,7 @@ const PatientHomeScreen = ({ navigation }) => {
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.doctorName}>{item.doctor_name}</Text>
+                                    <Text style={styles.patientName}>Patient: {item.patient_name || 'Me'}</Text>
                                     <Text style={styles.dateTime}>{item.appointment_date} • {item.appointment_time}</Text>
                                 </View>
                                 <Badge text={item.status} type={item.status === 'upcoming' ? 'primary' : 'success'} />
@@ -258,6 +259,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: colors.text,
+    },
+    patientName: {
+        fontSize: 12,
+        color: colors.primary,
+        fontWeight: '500',
     },
     dateTime: {
         fontSize: 13,

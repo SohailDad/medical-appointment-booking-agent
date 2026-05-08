@@ -42,9 +42,9 @@ const AppointmentsScreen = ({ navigation }) => {
             });
             // Dummy data
             setAppointments([
-                { _id: '1', appointment_id: 'APT1001', doctor_name: 'Dr. John Smith', appointment_date: '2024-05-20', appointment_time: '10:00 AM', status: 'upcoming', type: 'General Checkup' },
-                { _id: '2', appointment_id: 'APT1002', doctor_name: 'Dr. Sarah Adams', appointment_date: '2024-05-22', appointment_time: '02:30 PM', status: 'upcoming', type: 'Follow-up' },
-                { _id: '3', appointment_id: 'APT1003', doctor_name: 'Dr. Mike Ross', appointment_date: '2024-05-10', appointment_time: '11:00 AM', status: 'completed', type: 'Dentist' },
+                { _id: '1', appointment_id: 'APT1001', doctor_name: 'Dr. John Smith', patient_name: 'Sohail Dad', appointment_date: '2024-05-20', appointment_time: '10:00 AM', status: 'upcoming', type: 'General Checkup' },
+                { _id: '2', appointment_id: 'APT1002', doctor_name: 'Dr. Sarah Adams', patient_name: 'Sohail Dad', appointment_date: '2024-05-22', appointment_time: '02:30 PM', status: 'upcoming', type: 'Follow-up' },
+                { _id: '3', appointment_id: 'APT1003', doctor_name: 'Dr. Mike Ross', patient_name: 'Sohail Dad', appointment_date: '2024-05-10', appointment_time: '11:00 AM', status: 'completed', type: 'Dentist' },
             ]);
         } finally {
             setLoading(false);
@@ -83,6 +83,7 @@ const AppointmentsScreen = ({ navigation }) => {
             <View style={styles.cardHeader}>
                 <View style={styles.doctorInfo}>
                     <Text style={styles.doctorName}>{item.doctor_name}</Text>
+                    <Text style={styles.patientText}>Patient: {item.patient_name || 'Me'}</Text>
                     <Text style={styles.typeText}>{item.type} • ID: {item.appointment_id || item._id.substring(0, 8)}</Text>
                 </View>
                 <Badge text={item.status} type={item.status === 'upcoming' ? 'primary' : item.status === 'completed' ? 'success' : 'error'} />
@@ -190,6 +191,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: colors.text,
+    },
+    patientText: {
+        fontSize: 14,
+        color: colors.primary,
+        fontWeight: '500',
+        marginTop: 2,
     },
     typeText: {
         fontSize: 14,
