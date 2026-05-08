@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
 import Card from '../../components/Card';
@@ -23,8 +23,8 @@ const ReportsScreen = () => {
             console.error('Fetch reports error', error);
             // Dummy data
             setReports([
-                { _id: '1', fileName: 'Blood_Test_Results.pdf', date: '2024-04-15', size: '1.2 MB' },
-                { _id: '2', fileName: 'Prescription_May.jpg', date: '2024-05-02', size: '850 KB' },
+                { _id: '1', report_name: 'Blood_Test_Results.pdf', uploaded_at: '2024-04-15T10:00:00Z', size: '1.2 MB', file_type: 'pdf' },
+                { _id: '2', report_name: 'Prescription_May.jpg', uploaded_at: '2024-05-02T14:30:00Z', size: '850 KB', file_type: 'image' },
             ]);
         } finally {
             setLoading(false);
@@ -94,15 +94,24 @@ const ReportsScreen = () => {
         <Card style={styles.card}>
             <View style={styles.reportInfo}>
                 <View style={styles.fileIcon}>
-                    <MaterialCommunityIcons
-                        name={item.fileName.endsWith('.pdf') ? 'file-pdf-box' : 'file-image'}
-                        size={32}
-                        color={colors.primary}
-                    />
+                    {item.file_type === 'image' && item.file_path ? (
+                        <Image 
+                            source={{ uri: `${apiClient.defaults.baseURL}/../${item.file_path.replace(/\\/g, '/')}` }} 
+                            style={styles.previewImage} 
+                        />
+                    ) : (
+                        <MaterialCommunityIcons
+                            name={item.file_type === 'pdf' ? 'file-pdf-box' : 'file-image'}
+                            size={32}
+                            color={colors.primary}
+                        />
+                    )}
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Text style={styles.fileName} numberOfLines={1}>{item.fileName}</Text>
-                    <Text style={styles.fileDetails}>{item.date} • {item.size}</Text>
+                    <Text style={styles.fileName} numberOfLines={1}>{item.report_name || 'Unnamed Report'}</Text>
+                    <Text style={styles.fileDetails}>
+                        {item.uploaded_at ? new Date(item.uploaded_at).toLocaleDateString() : 'N/A'} • {item.size || 'Unknown size'}
+                    </Text>
                 </View>
                 <TouchableOpacity onPress={() => handleDelete(item._id)}>
                     <MaterialCommunityIcons name="delete-outline" size={24} color={colors.error} />
@@ -162,13 +171,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fileIcon: {
-        width: 48,
-        height: 48,
+        width: 60,
+        height: 60,
         borderRadius: 12,
         backgroundColor: colors.primaryLight,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
+        overflow: 'hidden',
+    },
+    previewImage: {
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
     },
     fileName: {
         fontSize: 16,

@@ -41,12 +41,12 @@ const PatientHomeScreen = ({ navigation }) => {
         fetchRecentAppointments();
     };
 
-    const QuickAction = ({ icon, label, onPress, color = colors.primary }) => (
-        <TouchableOpacity style={styles.actionItem} onPress={onPress}>
-            <View style={[styles.actionIcon, { backgroundColor: color + '20' }]}>
+    const CategoryItem = ({ icon, label, onPress, color = colors.primary }) => (
+        <TouchableOpacity style={styles.categoryItem} onPress={onPress}>
+            <View style={[styles.categoryIcon, { backgroundColor: color + '15' }]}>
                 <MaterialCommunityIcons name={icon} size={28} color={color} />
             </View>
-            <Text style={styles.actionLabel}>{label}</Text>
+            <Text style={styles.categoryLabel}>{label}</Text>
         </TouchableOpacity>
     );
 
@@ -72,7 +72,7 @@ const PatientHomeScreen = ({ navigation }) => {
                     <View style={styles.promoContent}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.promoTitle}>Book your next appointment</Text>
-                            <Text style={styles.promoSubtitle}>Find the best doctors in your area</Text>
+                            <Text style={styles.promoSubtitle}>Find the right doctor for your symptoms</Text>
                             <TouchableOpacity
                                 style={styles.promoButton}
                                 onPress={() => navigation.navigate('Appointments', { screen: 'BookAppointment' })}
@@ -84,12 +84,23 @@ const PatientHomeScreen = ({ navigation }) => {
                     </View>
                 </Card>
 
-                <Text style={styles.sectionTitle}>Quick Actions</Text>
-                <View style={styles.actionsGrid}>
-                    <QuickAction icon="calendar-plus" label="Book" onPress={() => navigation.navigate('Appointments')} />
-                    <QuickAction icon="file-upload" label="Upload" onPress={() => navigation.navigate('Reports')} />
-                    <QuickAction icon="robot" label="AI Chat" onPress={() => navigation.navigate('Chat')} color="#5856D6" />
-                    <QuickAction icon="hospital-marker" label="Clinics" onPress={() => { }} color="#FF9500" />
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Specialties</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Chat', { message: 'Show me all medical categories' })}>
+                        <Text style={styles.seeAll}>See All</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.categoriesGrid}>
+                    <CategoryItem icon="heart-pulse" label="Cardiology" onPress={() => navigation.navigate('Chat', { message: 'I need a cardiologist' })} color="#FF3B30" />
+                    <CategoryItem icon="tooth-outline" label="Dental" onPress={() => navigation.navigate('Chat', { message: 'I need a dentist' })} color="#5856D6" />
+                    <CategoryItem icon="eye-outline" label="Eye Care" onPress={() => navigation.navigate('Chat', { message: 'I need an eye specialist' })} color="#AF52DE" />
+                    <CategoryItem icon="human-handsup" label="Orthopedic" onPress={() => navigation.navigate('Chat', { message: 'I need an orthopedic' })} color="#FF9500" />
+                </View>
+                <View style={[styles.categoriesGrid, { marginBottom: 24 }]}>
+                    <CategoryItem icon="brain" label="Neurology" onPress={() => navigation.navigate('Chat', { message: 'I need a neurologist' })} color="#007AFF" />
+                    <CategoryItem icon="face-man-shimmer-outline" label="Dermatology" onPress={() => navigation.navigate('Chat', { message: 'I need a dermatologist' })} color="#34C759" />
+                    <CategoryItem icon="baby-face-outline" label="Pediatric" onPress={() => navigation.navigate('Chat', { message: 'I need a pediatrician' })} color="#FF2D55" />
+                    <CategoryItem icon="pill" label="Pharmacy" onPress={() => navigation.navigate('Chat', { message: 'Find pharmacies nearby' })} color="#5AC8FA" />
                 </View>
 
                 <View style={styles.sectionHeader}>
@@ -203,16 +214,16 @@ const styles = StyleSheet.create({
         color: colors.primary,
         fontWeight: '600',
     },
-    actionsGrid: {
+    categoriesGrid: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 24,
+        marginBottom: 16,
     },
-    actionItem: {
+    categoryItem: {
         alignItems: 'center',
         width: '22%',
     },
-    actionIcon: {
+    categoryIcon: {
         width: 56,
         height: 56,
         borderRadius: 16,
@@ -220,10 +231,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 8,
     },
-    actionLabel: {
-        fontSize: 12,
+    categoryLabel: {
+        fontSize: 11,
         color: colors.text,
         fontWeight: '500',
+        textAlign: 'center',
     },
     appointmentCard: {
         marginBottom: 12,

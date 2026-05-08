@@ -101,6 +101,14 @@ const AppointmentsScreen = ({ navigation }) => {
                 </View>
             </View>
 
+            <TouchableOpacity 
+                style={styles.uploadReportButton}
+                onPress={() => navigation.navigate('Reports', { appointmentId: item._id })}
+            >
+                <MaterialCommunityIcons name="file-upload-outline" size={20} color={colors.primary} />
+                <Text style={styles.uploadReportText}>Upload Medical Report</Text>
+            </TouchableOpacity>
+
             {item.status === 'upcoming' && (
                 <View style={styles.actions}>
                     <TouchableOpacity
@@ -233,6 +241,24 @@ const styles = StyleSheet.create({
     dangerActionText: {
         color: colors.error,
         fontWeight: '600',
+    },
+    uploadReportButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 10,
+        backgroundColor: colors.white,
+        borderWidth: 1,
+        borderColor: colors.primary,
+        borderRadius: 8,
+        marginTop: 4,
+        marginBottom: 12,
+    },
+    uploadReportText: {
+        color: colors.primary,
+        fontWeight: '600',
+        marginLeft: 8,
+        fontSize: 14,
     },
     footer: {
         position: 'absolute',
