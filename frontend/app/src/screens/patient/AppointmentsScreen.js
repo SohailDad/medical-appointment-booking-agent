@@ -140,14 +140,14 @@ const AppointmentsScreen = ({ navigation }) => {
                             title="No Appointments"
                             message="You haven't booked any appointments yet."
                             buttonTitle="Book Now"
-                            onButtonPress={() => navigation.navigate('BookAppointment')}
+                            onButtonPress={() => navigation.navigate('Chat', { message: 'I want to book a new appointment' })}
                         />
                     }
                 />
                 <View style={styles.footer}>
                     <MintButton
                         title="Book New Appointment"
-                        onPress={() => navigation.navigate('BookAppointment')}
+                        onPress={() => navigation.navigate('Chat', { message: 'I want to book a new appointment' })}
                     />
                 </View>
             </View>
