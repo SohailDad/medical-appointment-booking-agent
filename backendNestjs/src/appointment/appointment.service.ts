@@ -28,6 +28,7 @@ export class AppointmentService {
         return appointment.save();
     }
 
+    // change the id into appointment_id
     async reschedule(id: string, rescheduleDto: RescheduleAppointmentDto): Promise<Appointment> {
         const { appointment_date, appointment_time } = rescheduleDto;
 
@@ -46,7 +47,6 @@ export class AppointmentService {
         if (existing) {
             throw new ConflictException('Doctor is already booked for this time slot');
         }
-
         appointment.appointment_date = appointment_date;
         appointment.appointment_time = appointment_time;
         appointment.status = AppointmentStatus.RESCHEDULED;

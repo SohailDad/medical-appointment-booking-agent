@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Put, Param, Delete, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Delete, Get, UseGuards, Req, Patch } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { BookAppointmentDto, RescheduleAppointmentDto } from './dto/appointment.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -17,7 +17,7 @@ export class AppointmentController {
         return this.appointmentService.book(bookAppointmentDto);
     }
 
-    @Put('reschedule/:id')
+    @Patch('reschedule/:id')
     @Roles(UserRole.PATIENT)
     async reschedule(@Param('id') id: string, @Body() rescheduleDto: RescheduleAppointmentDto) {
         return this.appointmentService.reschedule(id, rescheduleDto);
