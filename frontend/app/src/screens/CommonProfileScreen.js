@@ -33,7 +33,7 @@ const ProfileScreen = () => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.header}>
                     <View style={styles.avatarContainer}>
@@ -71,7 +71,7 @@ const ProfileScreen = () => {
 
                 <Text style={styles.version}>App Version 1.0.0</Text>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 

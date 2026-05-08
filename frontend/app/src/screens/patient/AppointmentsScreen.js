@@ -137,7 +137,7 @@ const AppointmentsScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.content}>
                 <FlatList
                     data={appointments}
@@ -163,7 +163,7 @@ const AppointmentsScreen = ({ navigation }) => {
                     />
                 </View>
             </View>
-        </SafeAreaView>
+        </View>
     );
 };
 

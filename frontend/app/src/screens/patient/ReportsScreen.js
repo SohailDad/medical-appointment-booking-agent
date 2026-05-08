@@ -173,7 +173,7 @@ const ReportsScreen = ({ route, navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.content}>
                 <FlatList
                     data={reports}
@@ -232,7 +232,7 @@ const ReportsScreen = ({ route, navigation }) => {
                     )}
                 </View>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 };
 

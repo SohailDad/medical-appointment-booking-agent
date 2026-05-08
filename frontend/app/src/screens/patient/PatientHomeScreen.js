@@ -51,7 +51,7 @@ const PatientHomeScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
@@ -132,7 +132,7 @@ const PatientHomeScreen = ({ navigation }) => {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 
