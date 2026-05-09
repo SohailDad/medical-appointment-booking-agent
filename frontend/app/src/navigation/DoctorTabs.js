@@ -30,7 +30,11 @@ export const DoctorTabs = () => (
             component={DoctorAppointmentsScreen} 
             options={{ headerShown: false }}
         />
-        <Tab.Screen name="Availability" component={DoctorAvailabilityScreen} />
+        <Tab.Screen 
+            name="Availability" 
+            component={DoctorAvailabilityScreen} 
+            options={{ headerShown: false }}
+        />
         <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
 );

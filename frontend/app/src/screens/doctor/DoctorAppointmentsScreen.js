@@ -7,6 +7,7 @@ import Badge from '../../components/Badge';
 import EmptyState from '../../components/EmptyState';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import apiClient from '../../api/client';
+import Toast from 'react-native-toast-message';
 
 const DoctorAppointmentsScreen = () => {
     const [allAppointments, setAllAppointments] = useState([]);
@@ -20,6 +21,8 @@ const DoctorAppointmentsScreen = () => {
             setAllAppointments(response.data || []);
         } catch (error) {
             console.error('Fetch appointments error:', error);
+            const errorMessage = error.response?.data?.message || 'Failed to fetch appointments';
+            Toast.show({ type: 'error', text1: errorMessage });
         } finally {
             setLoading(false);
         }
@@ -36,10 +39,12 @@ const DoctorAppointmentsScreen = () => {
                     onPress: async () => {
                         try {
                             await apiClient.patch(`/doctor/complete/${id}`);
+                            Toast.show({ type: 'success', text1: 'Appointment marked as completed' });
                             fetchAppointments();
                         } catch (error) {
                             console.error('Complete error:', error);
-                            Alert.alert('Error', 'Failed to mark appointment as completed.');
+                            const errorMessage = error.response?.data?.message || 'Failed to mark as completed';
+                            Toast.show({ type: 'error', text1: errorMessage });
                         }
                     }
                 }
