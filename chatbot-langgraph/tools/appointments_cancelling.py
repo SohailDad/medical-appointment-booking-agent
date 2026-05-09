@@ -1,87 +1,123 @@
+# tools/appointments_cancelling.py
+import logging
+import httpx
 from langchain.tools import tool
-from datetime import datetime
+from langchain_core.runnables import RunnableConfig
+from core.config import NEST_BACKEND_URL
 
+logger = logging.getLogger("cancelling_tools")
 
-appointments_booking_list = []
 
 @tool
-def appointments_cancelling(appointment_id: str) -> dict:
-    """Cancel an appointment using appointment_id (Production-level)."""
+def appointments_cancelling(
+    appointment_id: str,
+    config: RunnableConfig
+) -> dict:
+    """
+    Cancel an existing appointment.
 
-    for appt in appointments_booking_list:
-        if appt["appointment_id"] == appointment_id:
+    Args:
+        appointment_id (str): ID of the appointment to cancel.
 
-            if appt["status"] == "cancelled":
-                return {"status": "error", "message": "Appointment already cancelled."}
+    Returns:
+        dict: Success or error message.
+    """
 
-            appt["status"] = "cancelled"
-            appt["cancelled_at"] = datetime.now().isoformat()
+    # ─────────────────────────────────────────
+    # AUTH
+    # ─────────────────────────────────────────
 
-            return {
-                "status": "success",
-                "message": f"Appointment {appointment_id} cancelled successfully.",
-                "appointment": appt
-            }
+    token = config.get("configurable", {}).get("token")
+    if not token:
+        logger.warning("Missing authentication token.")
+        return {"status": "error", "message": "Authentication required."}
 
-    return {"status": "not_found", "message": "Appointment ID not found."}
+    headers = {
+        "Authorization": f"{token}",
+        "Content-Type": "application/json"
+    }
 
+    # ─────────────────────────────────────────
+    # CALL NESTJS — let NestJS handle everything
+    # ─────────────────────────────────────────
 
+    try:
+        response = httpx.patch(
+            f"{NEST_BACKEND_URL}/appointments/{appointment_id}/cancel",
+            headers=headers,
+            timeout=10.0
+        )
 
+        # NestJS returns 404 if appointment not found
+        if response.status_code == 404:
+            return {"status": "error", "message": "Appointment not found."}
 
+        # NestJS returns 409 if already cancelled
+        if response.status_code == 409:
+            return {"status": "error", "message": "Appointment already cancelled."}
 
+        if response.status_code not in (200, 201):
+            logger.error(f"Cancel error: {response.status_code} | {response.text}")
+            return {"status": "error", "message": "Cancellation failed. Please try again."}
 
+        logger.info(f"Appointment {appointment_id} cancelled successfully.")
 
+        return {
+            "status": "success",
+            "message": f"Appointment {appointment_id} cancelled successfully.",
+            "appointment": response.json()
+        }
 
+    except httpx.TimeoutException:
+        logger.error("Cancel timeout.")
+        return {"status": "error", "message": "Appointment service timeout."}
 
-
-
-
+    except httpx.RequestError as e:
+        logger.error(f"Connection error: {str(e)}")
+        return {"status": "error", "message": "Appointment service unavailable."}
 
 
 
 
 # from langchain.tools import tool
+# from datetime import datetime
+
 
 # appointments_booking_list = []
 
 # @tool
-# def cancel_appointment(patient_name: str = "", phone_number: str = "") -> dict:
-#     """
-#     Cancel an existing medical appointment.
-
-#     You can cancel an appointment by providing:
-#     - patient_name OR
-#     - phone_number (recommended)
-
-#     Returns:
-#     - status: success/not_found/error
-#     - message: readable info
-#     """
-
-#     # Normalize lowercase for matching
-#     patient_name_lower = patient_name.lower() if patient_name else None
+# def appointments_cancelling(appointment_id: str) -> dict:
+#     """Cancel an appointment using appointment_id (Production-level)."""
 
 #     for appt in appointments_booking_list:
-#         # Match by phone number (most reliable)
-#         if phone_number and appt["phone_number"] == phone_number:
-#             appointments_booking_list.remove(appt)
+#         if appt["appointment_id"] == appointment_id:
+
+#             if appt["status"] == "cancelled":
+#                 return {"status": "error", "message": "Appointment already cancelled."}
+
+#             appt["status"] = "cancelled"
+#             appt["cancelled_at"] = datetime.now().isoformat()
+
 #             return {
 #                 "status": "success",
-#                 "message": f"Appointment for patient with phone {phone_number} has been cancelled.",
-#                 "appointment_cancelled": appt
+#                 "message": f"Appointment {appointment_id} cancelled successfully.",
+#                 "appointment": appt
 #             }
 
-#         # Match by patient name
-#         if patient_name and appt["patient_name"].lower() == patient_name_lower:
-#             appointments_booking_list.remove(appt)
-#             return {
-#                 "status": "success",
-#                 "message": f"Appointment for {patient_name} has been cancelled.",
-#                 "appointment_cancelled": appt
-#             }
+#     return {"status": "not_found", "message": "Appointment ID not found."}
 
-#     # If no match found
-#     return {
-#         "status": "not_found",
-#         "message": "No matching appointment found to cancel."
-#     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

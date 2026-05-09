@@ -1,6 +1,5 @@
 from langchain.tools import tool
 # from datetime import datetime
-import os
 import re
 import uuid
 import logging
@@ -11,11 +10,11 @@ from utilities.check_conflict import check_conflict
 from utilities.validate_date import validate_date
 from utilities.validate_time import validate_time
 from core.chroma import collection, embedder
+from core.config import NEST_BACKEND_URL
 
 logger = logging.getLogger("booking_tool")
 
-load_dotenv()
-NEST_BACKEND_URL = os.getenv("NEST_BACKEND_URL")
+
 
 
 def validate_phone(phone: str) -> bool:

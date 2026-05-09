@@ -4,15 +4,12 @@ import httpx
 from langchain.tools import tool
 from langchain_core.runnables import RunnableConfig
 from utilities import validate_date, validate_time  # removed check_conflict
-from dotenv import load_dotenv
-import os
+from core.config import NEST_BACKEND_URL
 
 
 # from core.config import NEST_BACKEND_URL
 logger = logging.getLogger("rescheduling_tools")
 
-load_dotenv()
-NEST_BACKEND_URL = os.getenv("NEST_BACKEND_URL")
 
 @tool
 def appointments_reschedule(
