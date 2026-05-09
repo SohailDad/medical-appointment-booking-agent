@@ -25,7 +25,11 @@ export const DoctorTabs = () => (
             headerTitleStyle: { fontWeight: 'bold' },
         })}
     >
-        <Tab.Screen name="Appointments" component={DoctorAppointmentsScreen} />
+        <Tab.Screen 
+            name="Appointments" 
+            component={DoctorAppointmentsScreen} 
+            options={{ headerShown: false }}
+        />
         <Tab.Screen name="Availability" component={DoctorAvailabilityScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
