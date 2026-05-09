@@ -23,7 +23,6 @@ export class ChatController {
         try {
             chatDto.thread_id = req.user._id;
             const token = req.headers.authorization;
-
             // save user message BEFORE stream starts
             await this.chatService.saveMessage({
                 thread_id: chatDto.thread_id,

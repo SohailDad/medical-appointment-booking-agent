@@ -12,8 +12,12 @@ export class DoctorService {
         @InjectModel(Appointment.name) private appointmentModel: Model<Appointment>,
     ) { }
 
-    async findAppointmentsByDoctor(doctorName: string): Promise<Appointment[]> {
-        return this.appointmentModel.find({ doctor_name: doctorName });
+    async findAppointmentsByDoctor(doctorId: string): Promise<Appointment[]> {
+        const doctorAppointments = await  this.appointmentModel.find({
+            doctor_id: doctorId.toString(),
+            status: 'booked',
+        });
+        return doctorAppointments
     }
 
     async updateAvailability(email: string, updateAvailabilityDto: UpdateAvailabilityDto): Promise<Doctor> {

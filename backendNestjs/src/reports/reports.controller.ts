@@ -4,6 +4,7 @@ import {
     Get,
     Delete,
     Param,
+    Body,
     UseGuards,
     UseInterceptors,
     UploadedFile,
@@ -48,7 +49,11 @@ export class ReportsController {
             },
         }),
     )
-    async uploadReport(@UploadedFile() file: Express.Multer.File, @Req() req: any) {
+    async uploadReport(
+        @UploadedFile() file: Express.Multer.File,
+        @Req() req: any,
+        @Body('appointmentId') appointmentId: string,
+    ) {
         if (!file) {
             throw new HttpException('File is required', HttpStatus.BAD_REQUEST);
         }
@@ -60,6 +65,7 @@ export class ReportsController {
             file.originalname,
             file.path,
             file.mimetype.includes('pdf') ? 'pdf' : 'image',
+            appointmentId,
         );
 
         return report;
@@ -69,6 +75,12 @@ export class ReportsController {
     @Roles(UserRole.PATIENT)
     async getMyReports(@Req() req: any) {
         return this.reportsService.getMyReports(req.user._id);
+    }
+
+    @Get('appointment/:appointmentId')
+    @Roles(UserRole.PATIENT)
+    async getReportsByAppointment(@Param('appointmentId') appointmentId: string) {
+        return this.reportsService.getReportsByAppointment(appointmentId);
     }
 
     @Delete(':id')

@@ -8,6 +8,9 @@ export class Report extends Document {
     patientId: Types.ObjectId;
 
     @Prop({ required: true })
+    appointmentId: string;
+
+    @Prop({ required: true })
     patient_name: string;
 
     @Prop({ required: true })

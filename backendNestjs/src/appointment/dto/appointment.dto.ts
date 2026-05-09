@@ -15,15 +15,16 @@ export class BookAppointmentDto {
 
     @IsNotEmpty()
     doctor_name: string;
-
+    
+    @IsNotEmpty()
+    appointment_id: string;
+    
     @IsNotEmpty()
     appointment_date: string;
 
     @IsNotEmpty()
     appointment_time: string;
 
-    @IsNotEmpty()
-    appointment_id: string;
 }
 
 export class RescheduleAppointmentDto {

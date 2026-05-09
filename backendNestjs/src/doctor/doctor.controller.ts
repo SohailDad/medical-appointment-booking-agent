@@ -15,7 +15,7 @@ export class DoctorController {
     @Get('appointments')
     async getMyAppointments(@Req() req: any) {
         // Assuming user.name is used to match doctor_name in appointments
-        return this.doctorService.findAppointmentsByDoctor(req.user.name);
+        return this.doctorService.findAppointmentsByDoctor(req.user._id);
     }
 
     @Put('availability')
