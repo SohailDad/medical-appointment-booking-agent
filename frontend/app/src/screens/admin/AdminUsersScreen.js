@@ -28,14 +28,14 @@ const AdminUsersScreen = () => {
             console.error('Fetch admin users error:', error);
             const errorMessage = error.response?.data?.message || 'Failed to fetch users';
             Toast.show({ type: 'error', text1: 'Error', text2: errorMessage });
-            
+
             // Fallback for demo/testing if backend is not ready
-            setUsers([
-                { _id: '1', name: 'Admin User', email: 'admin@hospital.com', role: 'admin', createdAt: '2024-01-10T10:00:00Z' },
-                { _id: '2', name: 'Dr. Sarah Adams', email: 'sarah@hospital.com', role: 'doctor', createdAt: '2024-02-15T14:30:00Z' },
-                { _id: '3', name: 'Sohail Dad', email: 'sohail@example.com', role: 'patient', createdAt: '2024-03-20T09:15:00Z' },
-                { _id: '4', name: 'Jane Doe', email: 'jane@example.com', role: 'patient', createdAt: '2024-04-05T11:45:00Z' },
-            ]);
+            // setUsers([
+            //     { _id: '1', name: 'Admin User', email: 'admin@hospital.com', role: 'admin', createdAt: '2024-01-10T10:00:00Z' },
+            //     { _id: '2', name: 'Dr. Sarah Adams', email: 'sarah@hospital.com', role: 'doctor', createdAt: '2024-02-15T14:30:00Z' },
+            //     { _id: '3', name: 'Sohail Dad', email: 'sohail@example.com', role: 'patient', createdAt: '2024-03-20T09:15:00Z' },
+            //     { _id: '4', name: 'Jane Doe', email: 'jane@example.com', role: 'patient', createdAt: '2024-04-05T11:45:00Z' },
+            // ]);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -75,6 +75,42 @@ const AdminUsersScreen = () => {
         );
     };
 
+    const handleChangeRole = (id, currentRole) => {
+        if (currentRole === 'admin') {
+            Alert.alert('Action Denied', 'You cannot change the role of another admin.');
+            return;
+        }
+
+        const newRole = currentRole === 'patient' ? 'doctor' : 'patient';
+        const roleName = newRole.charAt(0).toUpperCase() + newRole.slice(1);
+
+        Alert.alert(
+            'Change Role',
+            `Change this user to a ${roleName}?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: `Make ${roleName}`,
+                    onPress: () => confirmChangeRole(id, newRole)
+                }
+            ]
+        );
+    };
+
+    const confirmChangeRole = async (id, newRole) => {
+        try {
+            await apiClient.patch(`/admin/users/${id}/role`, { role: newRole });
+            Toast.show({ type: 'success', text1: 'Role updated successfully' });
+            fetchUsers();
+        } catch (error) {
+            console.error('Change role error:', error);
+            Toast.show({ type: 'error', text1: 'Failed to update role' });
+
+            // For demo/testing if backend is not ready, update local state
+            setUsers(prev => prev.map(u => u._id === id ? { ...u, role: newRole } : u));
+        }
+    };
+
     const getRoleColor = (role) => {
         switch (role?.toLowerCase()) {
             case 'admin': return 'error';
@@ -102,23 +138,33 @@ const AdminUsersScreen = () => {
                     <Text style={styles.userEmail}>{item.email}</Text>
                 </View>
                 <View style={styles.statusColumn}>
-                    <Badge 
-                        text={item.role?.toUpperCase()} 
-                        type={getRoleColor(item.role)} 
+                    <Badge
+                        text={item.role?.toUpperCase()}
+                        type={getRoleColor(item.role)}
                     />
-                    {item.role !== 'admin' && (
-                        <TouchableOpacity 
-                            style={styles.deleteBtn}
-                            onPress={() => handleDelete(item._id, item.role)}
-                        >
-                            <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.error} />
-                        </TouchableOpacity>
-                    )}
+                    <View style={styles.actionsRow}>
+                        {item.role !== 'admin' && (
+                            <TouchableOpacity
+                                style={styles.actionBtn}
+                                onPress={() => handleChangeRole(item._id, item.role)}
+                            >
+                                <MaterialCommunityIcons name="account-edit-outline" size={20} color={colors.primary} />
+                            </TouchableOpacity>
+                        )}
+                        {item.role !== 'admin' && (
+                            <TouchableOpacity
+                                style={[styles.actionBtn, { marginLeft: 8 }]}
+                                onPress={() => handleDelete(item._id, item.role)}
+                            >
+                                <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.error} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
             </View>
-            
+
             <View style={styles.divider} />
-            
+
             <View style={styles.detailsRow}>
                 <View style={styles.detailItem}>
                     <MaterialCommunityIcons name="identifier" size={16} color={colors.textSecondary} />
@@ -137,9 +183,9 @@ const AdminUsersScreen = () => {
     return (
         <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
             <View style={styles.filterWrapper}>
-                <ScrollView 
-                    horizontal 
-                    showsHorizontalScrollIndicator={false} 
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.filterContainer}
                 >
                     {filters.map((filter) => (
@@ -239,9 +285,12 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: colors.textSecondary,
     },
-    deleteBtn: {
-        padding: 4,
+    actionsRow: {
+        flexDirection: 'row',
         marginTop: 4,
+    },
+    actionBtn: {
+        padding: 4,
     },
     divider: {
         height: 1,
