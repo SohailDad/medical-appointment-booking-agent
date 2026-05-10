@@ -456,7 +456,7 @@ const AdminDoctorsScreen = ({ navigation }) => {
 
     // ── Main render ────────────────────────────────────────────────────────────
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
             <View style={styles.content}>
                 <FlatList
                     data={doctors}
@@ -467,7 +467,6 @@ const AdminDoctorsScreen = ({ navigation }) => {
                     refreshing={loading}
                     ListHeaderComponent={
                         <View style={styles.listHeader}>
-                            <Text style={styles.title}>Manage Medical Staff</Text>
                             <Text style={styles.subtitle}>
                                 {doctors.length} doctor{doctors.length !== 1 ? 's' : ''} registered
                             </Text>
@@ -477,7 +476,7 @@ const AdminDoctorsScreen = ({ navigation }) => {
                         !loading && (
                             <EmptyState
                                 icon="doctor"
-                                title="No Doctors Found"
+                                title="No Doctor Found"
                                 message="Tap 'Add New Doctor' below to register the first doctor."
                             />
                         )
@@ -502,16 +501,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     list: {
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingTop: 5,
         paddingBottom: 100,
     },
     listHeader: {
         marginBottom: 16,
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: colors.text,
     },
     subtitle: {
         fontSize: 13,

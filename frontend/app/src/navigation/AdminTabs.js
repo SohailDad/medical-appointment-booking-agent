@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import AdminDoctorsScreen from '../screens/admin/AdminDoctorsScreen';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
+import AdminAppointmentsScreen from '../screens/admin/AdminAppointmentsScreen';
 import ProfileScreen from '../screens/CommonProfileScreen';
 
 const Tab = createBottomTabNavigator();
@@ -13,19 +13,21 @@ export const AdminTabs = () => (
         screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
-                if (route.name === 'Doctors') iconName = focused ? 'doctor' : 'doctor';
+                if (route.name === 'Doctor') iconName = focused ? 'doctor' : 'doctor';
                 else if (route.name === 'Appointments') iconName = focused ? 'calendar-multiple' : 'calendar-multiple';
                 else if (route.name === 'Profile') iconName = focused ? 'account-cog' : 'account-cog-outline';
                 return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
             },
             tabBarActiveTintColor: colors.primary,
             tabBarInactiveTintColor: colors.textSecondary,
+            headerShown: true,
+            headerStyle: { backgroundColor: colors.white },
+            headerTintColor: colors.text,
+            headerTitleStyle: { fontWeight: 'bold' },
         })}
     >
-        <Tab.Screen name="Doctors" component={AdminDoctorsScreen} />
-        <Tab.Screen name="Appointments">
-            {(props) => <PlaceholderScreen {...props} title="Global Appointments" />}
-        </Tab.Screen>
+        <Tab.Screen name="Doctor" component={AdminDoctorsScreen} />
+        <Tab.Screen name="Appointments" component={AdminAppointmentsScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
 );
