@@ -35,10 +35,10 @@ const ReportsScreen = ({ route, navigation }) => {
         } catch (error) {
             console.error('Fetch reports error', error);
             // Dummy data
-            setReports([
-                { _id: '1', report_name: 'Blood_Test_Results.pdf', uploaded_at: '2024-04-15T10:00:00Z', size: '1.2 MB', file_type: 'pdf', file_path: 'dummy.pdf' },
-                { _id: '2', report_name: 'Chest_XRay_Sample.jpg', uploaded_at: '2024-05-02T14:30:00Z', size: '850 KB', file_type: 'image', file_path: 'https://picsum.photos/200/200' },
-            ]);
+            // setReports([
+            //     { _id: '1', report_name: 'Blood_Test_Results.pdf', uploaded_at: '2024-04-15T10:00:00Z', size: '1.2 MB', file_type: 'pdf', file_path: 'dummy.pdf' },
+            //     { _id: '2', report_name: 'Chest_XRay_Sample.jpg', uploaded_at: '2024-05-02T14:30:00Z', size: '850 KB', file_type: 'image', file_path: 'https://picsum.photos/200/200' },
+            // ]);
         } finally {
             setLoading(false);
         }
