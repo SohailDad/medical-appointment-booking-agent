@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, MinLength, IsOptional, IsString, IsNumber } from 'class-validator';
 import { UserRole } from '../schemas/user.schema';
 
 export class SignupDto {
@@ -14,6 +14,28 @@ export class SignupDto {
 
     @IsEnum(UserRole)
     role: UserRole;
+}
+
+export class RegisterDoctorDto extends SignupDto {
+    @IsNotEmpty()
+    @IsString()
+    specialization: string;
+
+    @IsNotEmpty()
+    @IsString()
+    degree: string;
+
+    @IsNotEmpty()
+    @IsNumber()
+    experience: number;
+
+    @IsNotEmpty()
+    @IsString()
+    licenseNumber: string;
+
+    @IsNotEmpty()
+    @IsString()
+    description: string;
 }
 
 export class LoginDto {

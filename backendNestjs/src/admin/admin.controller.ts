@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Put, Param, Delete, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Delete, Get, UseGuards, Patch } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateDoctorDto, UpdateDoctorDto } from './dto/doctor.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -32,6 +32,21 @@ export class AdminController {
         return this.adminService.findAllDoctors();
     }
 
+    @Get('doctors/pending')
+    async getPendingDoctors() {
+        return this.adminService.getPendingDoctors();
+    }
+
+    @Patch('doctor/approve/:id')
+    async approveDoctor(@Param('id') id: string) {
+        return this.adminService.approveDoctor(id);
+    }
+
+    @Patch('doctor/reject/:id')
+    async rejectDoctor(@Param('id') id: string) {
+        return this.adminService.rejectDoctor(id);
+    }
+
     @Get('appointments')
     async viewAllAppointments() {
         return this.adminService.findAllAppointments();
@@ -41,5 +56,10 @@ export class AdminController {
     @Get('users')
     async viewAllUsers(){
         return this.adminService.findAllUsers();
+    }
+
+    @Delete('users/:id')
+    async deleteUser(@Param('id') id: string){
+        return this.adminService.deleteUser(id);
     }
 }

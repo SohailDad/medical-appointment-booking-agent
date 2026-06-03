@@ -35,6 +35,25 @@ export class User extends Document {
 
   @Prop()
   resetPasswordExpires?: Date;
+
+  // Doctor-specific fields
+  @Prop({ enum: ['pending', 'approved', 'rejected'] })
+  status?: string;
+
+  @Prop()
+  specialization?: string;
+
+  @Prop()
+  degree?: string;
+
+  @Prop()
+  experience?: number;
+
+  @Prop()
+  licenseNumber?: string;
+
+  @Prop()
+  description?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

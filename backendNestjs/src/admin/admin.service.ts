@@ -197,9 +197,62 @@ export class AdminService {
     }
 
 
+    async getPendingDoctors(): Promise<User[]> {
+        return this.userModel.find({ role: 'doctor', status: 'pending' }).select('-password');
+    }
+
+    async approveDoctor(id: string): Promise<{ statusCode: number; message: string }> {
+        const user = await this.userModel.findById(id);
+        if (!user || user.role !== 'doctor') {
+            throw new NotFoundException('Doctor not found');
+        }
+
+        user.status = 'approved';
+        await user.save();
+
+        // Also add them to the Doctor collection so the rest of the system works
+        try {
+            await this.createDoctor({
+                name: user.name,
+                email: user.email,
+                specialization: user.specialization || 'General',
+                experience: user.experience || 0,
+                description: user.description || 'Verified Doctor',
+                availability: [] // Empty by default
+            });
+        } catch (e) {
+            // If they already exist, just ignore it.
+            console.log("Doctor already exists in Doctor collection", e.message);
+        }
+
+        return { statusCode: HttpStatus.OK, message: 'Doctor approved successfully' };
+    }
+
+    async rejectDoctor(id: string): Promise<{ statusCode: number; message: string }> {
+        const user = await this.userModel.findById(id);
+        if (!user || user.role !== 'doctor') {
+            throw new NotFoundException('Doctor not found');
+        }
+
+        user.status = 'rejected';
+        await user.save();
+
+        return { statusCode: HttpStatus.OK, message: 'Doctor rejected successfully' };
+    }
+
+
     async findAllUsers(): Promise<User[]>{
         const allUsers = await this.userModel.find({}, '_id name email role createdAt')
         return allUsers
+    }
+
+
+    async deleteUser(id: string): Promise<{ statusCode: number; message: string }>{
+        const user = await this.userModel.findByIdAndDelete(id)
+        if(!user){
+            throw new NotFoundException('User not found');
+        }
+        return { statusCode: HttpStatus.OK, message: 'Doctor rejected successfully' };
     }
 }
 

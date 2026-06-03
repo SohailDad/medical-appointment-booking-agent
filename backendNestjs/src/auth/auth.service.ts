@@ -2,7 +2,7 @@ import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/co
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserRole } from './schemas/user.schema';
-import { SignupDto, LoginDto } from './dto/auth.dto';
+import { SignupDto, LoginDto, RegisterDoctorDto } from './dto/auth.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '../mail/mail.service';
@@ -50,6 +50,46 @@ export class AuthService {
         };
     }
 
+    async registerDoctor(registerDoctorDto: RegisterDoctorDto): Promise<{user: User, token: string}> {
+        const { name, email, password, role, specialization, degree, experience, licenseNumber, description } = registerDoctorDto;
+
+        const existingUser = await this.userModel.findOne({ email });
+        if (existingUser) {
+            throw new ConflictException('Email already exists');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationExpires = new Date(Date.now() + 3600000); // 1 hour
+
+        const user = new this.userModel({
+            name,
+            email,
+            password: hashedPassword,
+            role: 'doctor', // force role to doctor
+            status: 'pending', // doctor specific field
+            specialization,
+            degree,
+            experience,
+            licenseNumber,
+            description,
+            emailVerificationToken: verificationToken,
+            emailVerificationExpires: verificationExpires,
+        });
+
+        const savedUser = await user.save();
+
+        // Send emails (non-blocking)
+        // this.mailService.sendWelcomeEmail(name, email);
+        // this.mailService.sendVerificationEmail(name, email, verificationToken);
+
+        const payload = { sub: user._id, email: user.email, role: user.role };
+        return {
+            user: savedUser,
+            token: await this.jwtService.signAsync(payload)
+        };
+    }
+
     async login(loginDto: LoginDto): Promise<{user: User, token:string}> {
         const { email, password } = loginDto;
         const user = await this.userModel.findOne({ email });
@@ -60,6 +100,10 @@ export class AuthService {
 
         if (!user.isVerified) {
             throw new UnauthorizedException('Please verify your email address');
+        }
+
+        if (user.role === 'doctor' && user.status !== 'approved') {
+            throw new UnauthorizedException('Your account is under verification');
         }
 
         const payload = { sub: user._id, email: user.email, role: user.role };
