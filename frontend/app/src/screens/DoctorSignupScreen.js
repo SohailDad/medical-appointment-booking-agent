@@ -5,17 +5,15 @@ import { useForm } from 'react-hook-form';
 import FormInput from '../components/FormInput';
 import MintButton from '../components/MintButton';
 import { colors } from '../theme/colors';
-import { useAuth } from '../context/AuthContext';
 import apiClient from '../api/client';
 import Toast from 'react-native-toast-message';
 
-const SignupScreen = ({ navigation }) => {
+const DoctorSignupScreen = ({ navigation }) => {
     const { control, handleSubmit, watch, formState: { isSubmitting } } = useForm({
         defaultValues: {
-            role: 'patient'
+            role: 'doctor'
         }
     });
-    const { login } = useAuth();
 
     const onSubmit = async (data) => {
         try {
@@ -24,10 +22,25 @@ const SignupScreen = ({ navigation }) => {
                 ...rest,
                 name: data.name.trim(),
                 email: data.email.trim().toLowerCase(),
+                specialization: data.specialization.trim(),
+                degree: data.degree.trim(),
+                experience: Number(data.experience),
+                licenseNumber: data.licenseNumber.trim(),
+                description: data.description.trim(),
             };
-            const response = await apiClient.post('/auth/signup', cleanedData);
-            const { user, token } = response.data;
-            await login(user, token);
+            await apiClient.post('/auth/register-doctor', cleanedData);
+            
+            Toast.show({
+                type: 'success',
+                text1: 'Signup Successful',
+                text2: 'Your account is under verification by an admin. You can login once approved.',
+            });
+            
+            // Navigate back to login
+            setTimeout(() => {
+                navigation.navigate('Login');
+            }, 2000);
+            
         } catch (error) {
             let message = 'Something went wrong';
 
@@ -44,12 +57,6 @@ const SignupScreen = ({ navigation }) => {
                 text1: 'Signup Failed',
                 text2: message,
             });
-            // const message = error.response?.data?.message || error.message || 'Something went wrong';
-            // Toast.show({
-            //     type: 'error',
-            //     text1: 'Signup Failed',
-            //     text2: message
-            // });
         }
     };
 
@@ -61,24 +68,24 @@ const SignupScreen = ({ navigation }) => {
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                     <View style={styles.header}>
-                        <Text style={styles.title}>Create Account</Text>
-                        <Text style={styles.subtitle}>Join our medical platform</Text>
+                        <Text style={styles.title}>Apply as a Doctor</Text>
+                        <Text style={styles.subtitle}>Join our platform as a healthcare provider</Text>
                     </View>
 
                     <View style={styles.form}>
                         <FormInput
                             control={control}
                             name="name"
-                            label="Full Name"
-                            placeholder="e.g. John Doe"
+                            label="Full Name *"
+                            placeholder="e.g. Dr. John Doe"
                             rules={{ required: 'Name is required' }}
                         />
 
                         <FormInput
                             control={control}
                             name="email"
-                            label="Email Address"
-                            placeholder="e.g. john@example.com"
+                            label="Email Address *"
+                            placeholder="e.g. doctor@example.com"
                             keyboardType="email-address"
                             autoCapitalize="none"
                             autoCorrect={false}
@@ -94,7 +101,7 @@ const SignupScreen = ({ navigation }) => {
                         <FormInput
                             control={control}
                             name="password"
-                            label="Password"
+                            label="Password *"
                             placeholder="••••••••"
                             secureTextEntry={true}
                             rules={{
@@ -106,7 +113,7 @@ const SignupScreen = ({ navigation }) => {
                         <FormInput
                             control={control}
                             name="confirmPassword"
-                            label="Confirm Password"
+                            label="Confirm Password *"
                             placeholder="••••••••"
                             secureTextEntry={true}
                             rules={{
@@ -115,8 +122,54 @@ const SignupScreen = ({ navigation }) => {
                             }}
                         />
 
+                        <FormInput
+                            control={control}
+                            name="specialization"
+                            label="Specialization *"
+                            placeholder="e.g. Cardiology"
+                            rules={{ required: 'Specialization is required' }}
+                        />
+
+                        <FormInput
+                            control={control}
+                            name="degree"
+                            label="Degree *"
+                            placeholder="e.g. MBBS, MD"
+                            rules={{ required: 'Degree is required' }}
+                        />
+
+                        <FormInput
+                            control={control}
+                            name="experience"
+                            label="Years of Experience *"
+                            placeholder="e.g. 5"
+                            keyboardType="numeric"
+                            rules={{ 
+                                required: 'Experience is required',
+                                pattern: { value: /^\d+$/, message: 'Must be a whole number' }
+                            }}
+                        />
+
+                        <FormInput
+                            control={control}
+                            name="licenseNumber"
+                            label="License / PMC Number *"
+                            placeholder="e.g. PMC-12345"
+                            rules={{ required: 'License number is required' }}
+                        />
+
+                        <FormInput
+                            control={control}
+                            name="description"
+                            label="Professional Bio *"
+                            placeholder="Brief description about yourself..."
+                            multiline
+                            numberOfLines={3}
+                            rules={{ required: 'Description is required' }}
+                        />
+
                         <MintButton
-                            title="Sign Up"
+                            title="Submit Application"
                             onPress={handleSubmit(onSubmit)}
                             loading={isSubmitting}
                             disabled={isSubmitting}
@@ -124,16 +177,9 @@ const SignupScreen = ({ navigation }) => {
                         />
 
                         <View style={styles.footer}>
-                            <Text style={styles.footerText}>Already have an account? </Text>
-                            <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Text style={styles.footerText}>Already registered? </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                                 <Text style={styles.loginText}>Sign In</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={[styles.footer, { marginTop: 0 }]}>
-                            <Text style={styles.footerText}>Are you a doctor? </Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('DoctorSignup')}>
-                                <Text style={styles.loginText}>Apply here</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -148,11 +194,11 @@ const styles = StyleSheet.create({
     scrollContent: { flexGrow: 1, padding: 24 },
     header: { marginBottom: 32, alignItems: 'center' },
     title: { fontSize: 28, fontWeight: 'bold', color: colors.text, marginBottom: 8 },
-    subtitle: { fontSize: 16, color: colors.textSecondary },
+    subtitle: { fontSize: 15, color: colors.textSecondary, textAlign: 'center' },
     form: { width: '100%' },
-    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, marginBottom: 20 },
+    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, marginBottom: 40 },
     footerText: { color: colors.textSecondary, fontSize: 15 },
     loginText: { color: colors.primary, fontWeight: 'bold', fontSize: 15 },
 });
 
-export default SignupScreen;
+export default DoctorSignupScreen;

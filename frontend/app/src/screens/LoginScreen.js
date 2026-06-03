@@ -112,6 +112,13 @@ const LoginScreen = ({ navigation }) => {
                                 <Text style={styles.signupText}>Sign Up</Text>
                             </TouchableOpacity>
                         </View>
+
+                        <View style={[styles.footer, { marginTop: 10 }]}>
+                            <Text style={styles.footerText}>Are you a doctor? </Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('DoctorSignup')}>
+                                <Text style={styles.signupText}>Apply here</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
