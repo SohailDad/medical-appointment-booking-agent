@@ -1,0 +1,42 @@
+import { Type } from "class-transformer";
+import { IsEmail, IsNotEmpty, IsNumber, IsArray, ValidateNested, IsString } from 'class-validator';
+
+export class AvailabilityDto {
+  @IsNotEmpty()
+  @IsString()
+  day: string;
+
+  @IsNotEmpty()
+  startTime: string;
+
+  @IsNotEmpty()
+  endTime: string;
+}
+
+export class CreateProfileDto {
+    @IsNotEmpty()
+    name: string;
+
+    @IsEmail()
+    email: string;
+
+    @IsNotEmpty()
+    specialization: string;
+
+    @IsNotEmpty()
+    degree: string;
+
+    @IsNumber()
+    experience: number;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => AvailabilityDto)
+    availability: AvailabilityDto[];
+
+    @IsNotEmpty()
+    description: string;
+}
+
+
+export class UpdateProfileDto extends CreateProfileDto { }

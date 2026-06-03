@@ -21,7 +21,7 @@ export class ReportsService {
     ): Promise<Report> {
         const report = new this.reportModel({
             patientId: new Types.ObjectId(patientId),
-            appointmentId: appointmentId ,
+            appointmentId: appointmentId,
             patient_name: patientName,
             report_name: reportName,
             file_path: filePath,

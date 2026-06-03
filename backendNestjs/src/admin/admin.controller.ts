@@ -36,4 +36,10 @@ export class AdminController {
     async viewAllAppointments() {
         return this.adminService.findAllAppointments();
     }
+
+
+    @Get('users')
+    async viewAllUsers(){
+        return this.adminService.findAllUsers();
+    }
 }

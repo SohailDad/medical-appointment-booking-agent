@@ -5,6 +5,7 @@ export enum AppointmentStatus {
     BOOKED = 'booked',
     CANCELLED = 'cancelled',
     RESCHEDULED = 'rescheduled',
+    COMPLETED = 'completed',
 }
 
 @Schema({ timestamps: true })

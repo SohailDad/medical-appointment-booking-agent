@@ -7,13 +7,14 @@ import { Doctor } from '../doctor/schemas/doctor.schema';
 import { Appointment } from '../appointment/schemas/appointment.schema';
 import { CreateDoctorDto, UpdateDoctorDto } from './dto/doctor.dto';
 import { firstValueFrom } from 'rxjs';
-import { log } from 'console';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Injectable()
 export class AdminService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
+        @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Doctor.name) private doctorModel: Model<Doctor>,
         @InjectModel(Appointment.name) private appointmentModel: Model<Appointment>,
     ) { }
@@ -193,6 +194,12 @@ export class AdminService {
 
     async findAllAppointments(): Promise<Appointment[]> {
         return this.appointmentModel.find();
+    }
+
+
+    async findAllUsers(): Promise<User[]>{
+        const allUsers = await this.userModel.find({}, '_id name email role createdAt')
+        return allUsers
     }
 }
 

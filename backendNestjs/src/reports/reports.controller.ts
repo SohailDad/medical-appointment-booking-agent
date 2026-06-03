@@ -78,7 +78,7 @@ export class ReportsController {
     }
 
     @Get('appointment/:appointmentId')
-    @Roles(UserRole.PATIENT)
+    @Roles(UserRole.PATIENT, UserRole.DOCTOR)
     async getReportsByAppointment(@Param('appointmentId') appointmentId: string) {
         return this.reportsService.getReportsByAppointment(appointmentId);
     }

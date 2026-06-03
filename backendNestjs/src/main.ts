@@ -31,6 +31,7 @@ app.enableCors({
   }));
 
   await app.listen(port,host);
+  // await app.listen(port,"127.0.0.1");
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
