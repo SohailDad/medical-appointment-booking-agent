@@ -182,7 +182,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     list: {
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingTop: 5,
+        paddingBottom: 20,
     },
     card: {
         marginBottom: 16,
