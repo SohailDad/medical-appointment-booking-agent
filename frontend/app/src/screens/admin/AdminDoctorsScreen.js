@@ -58,6 +58,8 @@ const AdminDoctorsScreen = ({ navigation }) => {
                     email: 'sarah@hospital.com',
                     specialization: 'Cardiology',
                     experience: 8,
+                    degree: 'MBBS, FCPS',
+                    licenceNumber: 'PMC-12345',
                     description: 'Expert in cardiovascular medicine.',
                     availability: [{ day: 'Monday', startTime: '09:00', endTime: '17:00' }, { day: 'Tuesday', startTime: '10:00', endTime: '16:00' }, { day: 'Wednesday', startTime: '10:00', endTime: '16:00' },],
                 },
@@ -67,6 +69,8 @@ const AdminDoctorsScreen = ({ navigation }) => {
                     email: 'mike@hospital.com',
                     specialization: 'Neurology',
                     experience: 12,
+                    degree: 'MBBS, MRCP',
+                    licenceNumber: 'PMC-67890',
                     description: 'Specialist in neurological disorders.',
                     availability: [{ day: 'Wednesday', startTime: '10:00', endTime: '16:00' }],
                 },
@@ -85,7 +89,8 @@ const AdminDoctorsScreen = ({ navigation }) => {
         setEditingDoctor(null);
         setAvailabilitySlots([]);
         setSlotErrors([]);
-        reset({ name: '', email: '', specialization: '', experience: '', description: '' });
+        // ✅ FIX 1: Added degree and licenceNumber to reset
+        reset({ name: '', email: '', specialization: '', experience: '', description: '', degree: '', licenceNumber: '' });
         setModalVisible(true);
     };
 
@@ -93,12 +98,15 @@ const AdminDoctorsScreen = ({ navigation }) => {
         setEditingDoctor(doctor);
         setAvailabilitySlots(doctor.availability ? doctor.availability.map(s => ({ ...s })) : []);
         setSlotErrors(doctor.availability ? doctor.availability.map(() => ({ startTime: '', endTime: '' })) : []);
+        // ✅ FIX 2: Added degree and licenceNumber to reset
         reset({
             name: doctor.name || '',
             email: doctor.email || '',
             specialization: doctor.specialization || '',
             experience: doctor.experience != null ? String(doctor.experience) : '',
             description: doctor.description || '',
+            degree: doctor.degree || '',
+            licenceNumber: doctor.licenceNumber || '',
         });
         setModalVisible(true);
     };
@@ -108,7 +116,8 @@ const AdminDoctorsScreen = ({ navigation }) => {
         setEditingDoctor(null);
         setAvailabilitySlots([]);
         setSlotErrors([]);
-        reset({ name: '', email: '', specialization: '', experience: '', description: '' });
+        // ✅ FIX 3: Added degree and licenceNumber to reset
+        reset({ name: '', email: '', specialization: '', experience: '', description: '', degree: '', licenceNumber: '' });
     };
 
     // ── Availability slot management ───────────────────────────────────────────
@@ -163,10 +172,13 @@ const AdminDoctorsScreen = ({ navigation }) => {
                 return;
             }
 
+            // ✅ FIX 4: Added degree and licenceNumber to payload
             const payload = {
                 name: data.name.trim(),
                 email: data.email.trim(),
                 specialization: data.specialization.trim(),
+                degree: data.degree.trim(),
+                licenceNumber: data.licenceNumber.trim(),
                 experience: Number(data.experience),
                 description: data.description.trim(),
                 availability: availabilitySlots,
@@ -182,7 +194,7 @@ const AdminDoctorsScreen = ({ navigation }) => {
             closeModal();
             fetchDoctors();
         } catch (error) {
-            
+
             const message =
                 error?.response?.data?.message ||
                 (editingDoctor ? 'Failed to update doctor' : 'Failed to add doctor');
@@ -254,15 +266,30 @@ const AdminDoctorsScreen = ({ navigation }) => {
                     <MaterialCommunityIcons name="briefcase-outline" size={18} color={colors.primary} />
                     <Text style={styles.detailText}>{item.experience} yrs exp</Text>
                 </View>
+                {item.degree ? (
+                    <View style={styles.detailItem}>
+                        <MaterialCommunityIcons name="school-outline" size={18} color={colors.primary} />
+                        <Text style={styles.detailText}>{item.degree}</Text>
+                    </View>
+                ) : null}
                 <Badge
                     text={item.specialization || 'General'}
                     type="primary"
                 />
             </View>
+
+            {/* Licence Number — sits between detailsRow and description */}
+            {item.licenceNumber ? (
+                <View style={styles.licenceRow}>
+                    <MaterialCommunityIcons name="card-account-details-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.licenceText}>Licence: {item.licenceNumber}</Text>
+                </View>
+            ) : null}
+
             {/* Description */}
-            <View style= {styles.descriptionContainer}>
+            <View style={styles.descriptionContainer}>
                 <Text style={styles.descriptionLabel}>Description</Text>
-                <Text style = {styles.descriptionText}>{item.description}</Text>
+                <Text style={styles.descriptionText}>{item.description}</Text>
             </View>
 
             {item.availability && item.availability.length > 0 && (
@@ -335,6 +362,22 @@ const AdminDoctorsScreen = ({ navigation }) => {
                             placeholder="e.g. Cardiology"
                             autoCapitalize="words"
                             rules={{ required: 'Specialization is required' }}
+                        />
+                        <FormInput
+                            control={control}
+                            name="degree"
+                            label="Degree *"
+                            placeholder="e.g. MBBS, FCPS"
+                            autoCapitalize="words"
+                            rules={{ required: 'Degree is required' }}
+                        />
+                        <FormInput
+                            control={control}
+                            name="licenceNumber"
+                            label="Licence *"
+                            placeholder="e.g. PMC-00000"
+                            autoCapitalize="characters"
+                            rules={{ required: 'Licence is required' }}
                         />
                         <FormInput
                             control={control}
@@ -601,7 +644,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        // padding: 20,
         paddingHorizontal: 20,
         backgroundColor: colors.background,
         borderTopWidth: 1,
@@ -732,8 +774,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
     },
 
-
-    // Description:----------------------
+    // Description
     descriptionContainer: {
         marginVertical: 10,
     },
@@ -744,10 +785,23 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     descriptionText: {
-    fontSize: 13,
-    color: colors.text,
-    lineHeight: 18,
-},
+        fontSize: 13,
+        color: colors.text,
+        lineHeight: 18,
+    },
+    licenceRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
+        marginBottom: 4,
+        paddingHorizontal: 2,
+    },
+    licenceText: {
+        fontSize: 13,
+        color: colors.textSecondary,
+        marginLeft: 6,
+        fontWeight: '500',
+    },
 });
 
 export default AdminDoctorsScreen;
