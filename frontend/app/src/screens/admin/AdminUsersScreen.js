@@ -15,7 +15,7 @@ const AdminUsersScreen = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [activeFilter, setActiveFilter] = useState('All');
 
-    const filters = ['All', 'Patient', 'Doctor', 'Admin'];
+    const filters = ['All', 'Patient', 'Doctor', 'Admin', 'Pending Doctor'];
 
     const fetchUsers = async (isRefreshing = false) => {
         try {
