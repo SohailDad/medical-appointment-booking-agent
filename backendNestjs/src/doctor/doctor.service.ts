@@ -115,7 +115,12 @@ export class DoctorService {
 
     // }
 
-    // async findProfile() {
+    async findProfile(id:string) {
+        const doctor = await this.doctorModel.findOne({doctor_id:id})
+        if (!doctor) {
+            throw new NotFoundException('Doctor profile not found')
+        }
 
-    // }
+        return doctor;
+    }
 }

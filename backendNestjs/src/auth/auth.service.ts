@@ -102,9 +102,9 @@ export class AuthService {
             throw new UnauthorizedException('Please verify your email address');
         }
 
-        if (user.role === 'doctor' && user.status !== 'approved') {
-            throw new UnauthorizedException('Your account is under verification');
-        }
+        // if (user.role === 'doctor' && user.status !== 'approved') {
+        //     throw new UnauthorizedException('Your account is under verification');
+        // }
 
         const payload = { sub: user._id, email: user.email, role: user.role };
        return {

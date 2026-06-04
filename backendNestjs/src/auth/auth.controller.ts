@@ -11,6 +11,8 @@ export class AuthController {
         return this.authService.signup(signupDto);
     }
 
+    // this is extra api not using 
+
     @Post('register-patient')
     async registerPatient(@Body() signupDto: SignupDto) {
         return this.authService.signup(signupDto);

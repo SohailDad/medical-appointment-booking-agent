@@ -220,7 +220,7 @@ export class AdminService {
                 description: user.description || 'Verified Doctor',
                 availability: [] // Empty by default
             });
-        } catch (e) {
+        } catch (e:any) {
             // If they already exist, just ignore it.
             console.log("Doctor already exists in Doctor collection", e.message);
         }

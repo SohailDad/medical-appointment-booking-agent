@@ -44,8 +44,9 @@ export class DoctorController {
     //     return this.doctorService.UpdateProfile(updateProfileDto);
     // }
 
-    // @Get('profile')
-    // async getProfile(){
-    //     return this.doctorService.findProfile()
-    // }
+    @Get('profile/:id')
+    async getProfile(@Param("id") id:string){
+        console.log(id)
+        return this.doctorService.findProfile(id)
+    }
 }
