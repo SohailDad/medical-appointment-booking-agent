@@ -61,56 +61,6 @@ export class DoctorService {
 
     //Profile
 
-    // async createProfile(createProfileDto: CreateProfileDto): Promise<{
-    //     statusCode: HttpStatus.CREATED,
-    //     message: string
-    // }> {
-    //     const existingDoctor = await this.doctorModel.findOne({
-    //         email: createProfileDto.email,
-    //     });
-
-    //     if (existingDoctor) {
-    //         throw new ConflictException('Doctor with this email already exists');
-    //     }
-
-    //     try {
-    //         const url = this.configService.get<string>('CHATBOT_API_URL');
-    //         if (!url) {
-    //             throw new HttpException(
-    //                 'Chatbot API URL not configured',
-    //                 HttpStatus.INTERNAL_SERVER_ERROR,
-    //             );
-    //         }
-
-    //         const doctor = new this.doctorModel(createProfileDto);
-    //         await doctor.save();
-    //         const chromadbDoctorData = {
-    //             "doctor_id": doctor._id,
-    //             "name": doctor.name,
-    //             "specialization": doctor.specialization,
-    //             // "degree:"dcotor.degree,
-    //             "experience": doctor.experience,
-    //             "availability": doctor.availability,
-    //             "description": doctor.description
-    //         }
-    //         await firstValueFrom(
-    //             this.httpService.post(`${url}/doctors/`, chromadbDoctorData)
-    //         );
-    //         return {
-    //             statusCode: HttpStatus.CREATED,
-    //             message: "Doctor profile created successfully"
-    //         };
-    //     } catch (error: any) {
-    //         //Race condition safety
-    //         if (error.code === 11000) {
-    //             throw new ConflictException('Profile with this email already exists');
-    //         }
-
-    //         throw new InternalServerErrorException('Failed to create Profile');
-    //     }
-
-    // }
-
     // async UpdateProfile(updateProfileDto: UpdateProfileDto) {
 
     // }

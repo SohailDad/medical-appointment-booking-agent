@@ -35,6 +35,12 @@ export class Doctor extends Document {
     specialization: string;
 
     @Prop({ required: true })
+    degree:string;
+
+    @Prop({ required: true })
+    licenceNumber: string;
+
+    @Prop({ required: true })
     experience: number;
 
     @Prop({ type: [Availability], default: [] , _id: false})

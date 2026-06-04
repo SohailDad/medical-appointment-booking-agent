@@ -23,6 +23,12 @@ export class CreateDoctorDto {
     @IsNotEmpty()
     specialization: string;
 
+    @IsNotEmpty()
+    degree: string;
+
+    @IsNotEmpty()
+    licenceNumber: string;
+
     @IsNumber()
     experience: number;
 

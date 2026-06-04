@@ -34,11 +34,7 @@ export class DoctorController {
         return this.doctorService.updateAvailability(req.user.email, updateAvailabilityDto);
     }
 
-    // @Post('profile')
-    // async addProfile(@Body() createProfileDto: CreateProfileDto){
-    //     return this.doctorService.createProfile(createProfileDto);
-    // }
-
+  
     // @Put('profile')
     // async updateProfile(@Body() updateProfileDto: UpdateProfileDto){
     //     return this.doctorService.UpdateProfile(updateProfileDto);

@@ -215,9 +215,11 @@ export class AdminService {
             await this.createDoctor({
                 name: user.name,
                 email: user.email,
-                specialization: user.specialization || 'General',
-                experience: user.experience || 0,
-                description: user.description || 'Verified Doctor',
+                specialization: user.specialization!,
+                degree: user.degree!,
+                licenceNumber: user.licenceNumber!,
+                experience: user.experience!,
+                description: user.description!,
                 availability: [] // Empty by default
             });
         } catch (e:any) {
