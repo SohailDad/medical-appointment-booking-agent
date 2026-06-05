@@ -122,6 +122,9 @@ const AdminUsersScreen = () => {
 
     const filteredUsers = users.filter(user => {
         if (activeFilter === 'All') return true;
+        if (activeFilter === 'Pending Doctor') {
+            return user.role?.toLowerCase() === 'doctor' && user.status?.toLowerCase() === 'pending';
+        }
         return user.role?.toLowerCase() === activeFilter.toLowerCase();
     });
 
