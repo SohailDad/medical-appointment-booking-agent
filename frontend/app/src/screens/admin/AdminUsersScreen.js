@@ -98,17 +98,53 @@ const AdminUsersScreen = () => {
     };
 
     const confirmChangeRole = async (id, newRole) => {
+        // try {
+        //     await apiClient.patch(`/admin/users/${id}/role`, { role: newRole });
+        //     Toast.show({ type: 'success', text1: 'Role updated successfully' });
+        //     fetchUsers();
+        // } catch (error) {
+        //     console.error('Change role error:', error);
+        //     Toast.show({ type: 'error', text1: 'Failed to update role' });
+
+        //     // For demo/testing if backend is not ready, update local state
+        //     setUsers(prev => prev.map(u => u._id === id ? { ...u, role: newRole } : u));
+        // }
+    };
+
+    const confirmChangeStatus = async (id, newStatus) => {
         try {
-            await apiClient.patch(`/admin/users/${id}/role`, { role: newRole });
-            Toast.show({ type: 'success', text1: 'Role updated successfully' });
+            await apiClient.patch(`/admin/doctor/${newStatus}/${id}`);
+            Toast.show({ type: 'success', text1: 'Status updated' });
             fetchUsers();
         } catch (error) {
-            console.error('Change role error:', error);
-            Toast.show({ type: 'error', text1: 'Failed to update role' });
+            console.error('Change status error:', error);
+            Toast.show({ type: 'error', text1: 'Failed to update status' });
 
-            // For demo/testing if backend is not ready, update local state
-            setUsers(prev => prev.map(u => u._id === id ? { ...u, role: newRole } : u));
+            // Fallback: update local state for demo
+            setUsers(prev => prev.map(u => u._id === id ? { ...u, status: newStatus } : u));
         }
+    };
+
+    const handleApprove = (id) => {
+        Alert.alert(
+            'Approve Doctor',
+            'Are you sure you want to approve this doctor?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Approve', onPress: () => confirmChangeStatus(id, 'approved') }
+            ]
+        );
+    };
+
+    const handleReject = (id) => {
+        Alert.alert(
+            'Reject Doctor',
+            'Are you sure you want to reject this doctor? This action cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Reject', style: 'destructive', onPress: () => confirmChangeStatus(id, 'rejected') }
+            ]
+        );
     };
 
     const getRoleColor = (role) => {
@@ -180,6 +216,61 @@ const AdminUsersScreen = () => {
                     </Text>
                 </View>
             </View>
+
+            {item.role === 'doctor' && (
+                <View style={styles.doctorDetails}>
+                    <View style={styles.doctorGrid}>
+                        <View style={styles.doctorItem}>
+                            <Text style={styles.detailLabel}>Status</Text>
+                            <Text style={styles.detailValue}>{item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'N/A'}</Text>
+                        </View>
+
+                        <View style={styles.doctorItem}>
+                            <Text style={styles.detailLabel}>Specialization</Text>
+                            <Text style={styles.detailValue}>{item.specialization || 'N/A'}</Text>
+                        </View>
+
+                        <View style={styles.doctorItem}>
+                            <Text style={styles.detailLabel}>Licence</Text>
+                            <Text style={styles.detailValue}>{item.licenceNumber || 'N/A'}</Text>
+                        </View>
+
+                        <View style={styles.doctorItem}>
+                            <Text style={styles.detailLabel}>Experience</Text>
+                            <Text style={styles.detailValue}>{item.experience ? `${item.experience} yrs` : 'N/A'}</Text>
+                        </View>
+
+                        <View style={[styles.doctorItem, styles.fullWidthItem]}>
+                            <Text style={styles.detailLabel}>Degree</Text>
+                            <Text style={styles.detailValue}>{item.degree || 'N/A'}</Text>
+                        </View>
+                    </View>
+
+                    {item.description ? (
+                        <Text style={styles.descriptionText}>{item.description}</Text>
+                    ) : null}
+
+                    {item.status?.toLowerCase() !== 'approved' && (
+                        <View style={styles.statusButtonsRow}>
+                            <TouchableOpacity
+                                style={[styles.statusButton, { backgroundColor: colors.primary }]}
+                                onPress={() => handleApprove(item._id)}
+                            >
+                                <Text style={[styles.statusButtonText, { color: colors.white }]}>Approve</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.statusButton, { borderColor: colors.error, borderWidth: 1, backgroundColor: colors.white }]}
+                                onPress={() => handleReject(item._id)}
+                            >
+                                <Text style={[styles.statusButtonText, { color: colors.error }]}>Reject</Text>
+                            </TouchableOpacity>
+
+                            
+                        </View>
+                    )}
+                </View>
+            )}
         </Card>
     );
 
@@ -354,6 +445,59 @@ const styles = StyleSheet.create({
     },
     activeFilterTabText: {
         color: colors.white,
+    },
+    doctorDetails: {
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+    },
+    doctorGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    doctorItem: {
+        width: '48%',
+        marginBottom: 8,
+    },
+    fullWidthItem: {
+        width: '100%',
+    },
+    detailLabel: {
+        fontSize: 11,
+        color: colors.textSecondary,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    detailValue: {
+        fontSize: 13,
+        color: colors.text,
+        fontWeight: '600',
+    },
+    descriptionText: {
+        marginTop: 8,
+        fontSize: 13,
+        color: colors.textSecondary,
+        lineHeight: 18,
+    },
+    statusButtonsRow: {
+        flexDirection: 'row',
+        marginTop: 10,
+        justifyContent: 'flex-start',
+        gap: 8,
+        flexWrap: 'wrap',
+    },
+    statusButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        minWidth: 90,
+        alignItems: 'center',
+    },
+    statusButtonText: {
+        fontSize: 13,
+        fontWeight: '700',
     },
 });
 
