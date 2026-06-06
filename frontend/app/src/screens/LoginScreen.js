@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm } from 'react-hook-form';
 import FormInput from '../components/FormInput';
@@ -60,6 +60,9 @@ const LoginScreen = ({ navigation }) => {
                 style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.logoContainer}>
+                        <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+                    </View>
                     <View style={styles.header}>
                         <Text style={styles.title}>Welcome Back</Text>
                         <Text style={styles.subtitle}>Sign in to your medical account</Text>
@@ -169,6 +172,15 @@ const styles = StyleSheet.create({
     footerText: {
         color: colors.textSecondary,
         fontSize: 15,
+    },
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    logo: {
+        width: 100,
+        height: 100,
+        marginBottom: 12,
     },
     signupText: {
         color: colors.primary,

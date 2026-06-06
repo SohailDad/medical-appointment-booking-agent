@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm } from 'react-hook-form';
 import FormInput from '../components/FormInput';
@@ -56,10 +56,20 @@ const SignupScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+                style={styles.keyboardAvoiding}
             >
-                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                    keyboardDismissMode="interactive"
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.logoContainer}>
+                        <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+                    </View>
                     <View style={styles.header}>
                         <Text style={styles.title}>Create Account</Text>
                         <Text style={styles.subtitle}>Join our medical platform</Text>
@@ -145,13 +155,24 @@ const SignupScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    scrollContent: { flexGrow: 1, padding: 24 },
-    header: { marginBottom: 32, alignItems: 'center' },
-    title: { fontSize: 28, fontWeight: 'bold', color: colors.text, marginBottom: 8 },
-    subtitle: { fontSize: 16, color: colors.textSecondary },
+    keyboardAvoiding: { flex: 1 },
+    scrollView: { flex: 1 },
+    scrollContent: { flexGrow: 1, justifyContent: 'flex-start', paddingHorizontal: 16, paddingTop: 10, paddingBottom: 10 },
+    header: { marginBottom: 18, alignItems: 'center' },
+    title: { fontSize: 26, fontWeight: 'bold', color: colors.text, marginBottom: 6 },
+    subtitle: { fontSize: 15, color: colors.textSecondary },
     form: { width: '100%' },
-    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, marginBottom: 20 },
+    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 16, marginBottom: 0 },
     footerText: { color: colors.textSecondary, fontSize: 15 },
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    logo: {
+        width: 88,
+        height: 88,
+        marginBottom: 10,
+    },
     loginText: { color: colors.primary, fontWeight: 'bold', fontSize: 15 },
 });
 

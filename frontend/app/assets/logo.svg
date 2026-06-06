@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <clipPath id="circle-clip">
+      <circle cx="96" cy="96" r="96"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="96" fill="#059669"/>
+
+  <!-- Subtle inner glow ring -->
+  <circle cx="96" cy="96" r="88" fill="none" stroke="#10B981" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- Medical cross -->
+  <!-- Vertical bar -->
+  <rect x="80" y="52" width="32" height="88" rx="8" fill="#FFFFFF"/>
+  <!-- Horizontal bar -->
+  <rect x="52" y="80" width="88" height="32" rx="8" fill="#FFFFFF"/>
+
+  <!-- Heartbeat pulse line over cross center -->
+  <polyline
+    points="58,96 70,96 76,82 82,110 88,88 94,96 98,96 104,78 110,114 116,96 134,96"
+    fill="none"
+    stroke="#059669"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    clip-path="url(#circle-clip)"
+  />
+</svg>
