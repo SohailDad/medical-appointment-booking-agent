@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet} from 'react-native';
+import { View, Text, Image, StyleSheet} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
@@ -25,6 +25,9 @@ const ResetPasswordScreen = ({ navigation, route }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
+                <View style={styles.logoContainer}>
+                    <Image source={require('../../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+                </View>
                 <Text style={styles.title}>New Password</Text>
                 <Text style={styles.subtitle}>Create a strong password for your account</Text>
 
@@ -76,6 +79,14 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: colors.textSecondary,
         marginBottom: 32,
+    },
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    logo: {
+        width: 100,
+        height: 100,
     },
 });
 
