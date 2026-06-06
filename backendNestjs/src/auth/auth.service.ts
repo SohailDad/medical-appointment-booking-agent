@@ -145,7 +145,7 @@ export class AuthService {
         user.resetPasswordExpires = resetExpires;
         await user.save();
 
-        this.mailService.sendResetPasswordEmail(user.name, user.email, resetToken);
+        // this.mailService.sendResetPasswordEmail(user.name, user.email, resetToken);
 
         return { message: 'If your email is registered, you will receive a reset link' };
     }
