@@ -15,7 +15,7 @@ export const PatientChatStack = () => (
             headerBackTitleVisible: false,
         }}
     >
-        <Stack.Screen name="ChatMain" component={ChatScreen} options={{ title: 'Chat', headerShown: false }} />
+        <Stack.Screen name="ChatMain" component={ChatScreen} options={{ title: 'Chat', headerShown: true }} />
         <Stack.Screen name="Payment" component={PaymentScreen} options={{ title: 'Payment' }} />
     </Stack.Navigator>
 );

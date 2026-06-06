@@ -100,7 +100,7 @@ const PatientHomeScreen = ({ navigation }) => {
                     <CategoryItem icon="brain" label="Neurology" onPress={() => navigation.navigate('Chat', { message: 'I need a neurologist' })} color="#007AFF" />
                     <CategoryItem icon="face-man-shimmer-outline" label="Dermatology" onPress={() => navigation.navigate('Chat', { message: 'I need a dermatologist' })} color="#34C759" />
                     <CategoryItem icon="baby-face-outline" label="Pediatric" onPress={() => navigation.navigate('Chat', { message: 'I need a pediatrician' })} color="#FF2D55" />
-                    <CategoryItem icon="pill" label="Pharmacy" onPress={() => navigation.navigate('Chat', { message: 'Find pharmacies nearby' })} color="#5AC8FA" />
+                    <CategoryItem icon="stethoscope" label="General Physician" onPress={() => navigation.navigate('Chat', { message: 'Find General Physician' })} color="#5AC8FA" />
                 </View>
 
                 <View style={styles.sectionHeader}>

@@ -40,6 +40,10 @@ const ChatScreen = ({ route }) => {
         }
     }, [route.params?.message]);
 
+    useEffect(() => {
+        navigation.setOptions({ title: 'Chat' });
+    }, [navigation]);
+
     const fetchHistory = async () => {
         try {
             const response = await apiClient.get('/chat/history');
@@ -254,7 +258,7 @@ const ChatScreen = ({ route }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['right', 'top', 'left']}>
+        <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
@@ -310,8 +314,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     listContent: {
-        padding: 16,
-        paddingBottom: 24,
+        paddingHorizontal: 16,
+        paddingTop: 0,
+        paddingBottom: 8,
     },
     messageContainer: {
         flexDirection: 'row',
