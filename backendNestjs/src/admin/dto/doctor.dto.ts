@@ -21,6 +21,9 @@ export class CreateDoctorDto {
     email: string;
 
     @IsNotEmpty()
+    doctor_id: string;
+
+    @IsNotEmpty()
     specialization: string;
 
     @IsNotEmpty()

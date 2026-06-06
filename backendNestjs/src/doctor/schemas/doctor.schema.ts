@@ -32,6 +32,9 @@ export class Doctor extends Document {
     email: string;
 
     @Prop({ required: true })
+    doctor_id: string;
+
+    @Prop({ required: true })
     specialization: string;
 
     @Prop({ required: true })

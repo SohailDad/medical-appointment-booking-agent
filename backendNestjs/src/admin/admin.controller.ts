@@ -37,12 +37,12 @@ export class AdminController {
         return this.adminService.getPendingDoctors();
     }
 
-    @Patch('doctor/approve/:id')
+    @Patch('doctor/approved/:id')
     async approveDoctor(@Param('id') id: string) {
         return this.adminService.approveDoctor(id);
     }
 
-    @Patch('doctor/reject/:id')
+    @Patch('doctor/rejected/:id')
     async rejectDoctor(@Param('id') id: string) {
         return this.adminService.rejectDoctor(id);
     }

@@ -215,6 +215,7 @@ export class AdminService {
             await this.createDoctor({
                 name: user.name,
                 email: user.email,
+                doctor_id: id,
                 specialization: user.specialization!,
                 degree: user.degree!,
                 licenceNumber: user.licenceNumber!,
@@ -244,7 +245,7 @@ export class AdminService {
 
 
     async findAllUsers(): Promise<User[]>{
-        const allUsers = await this.userModel.find({}, '_id name email role createdAt')
+        const allUsers = await this.userModel.find()
         return allUsers
     }
 
