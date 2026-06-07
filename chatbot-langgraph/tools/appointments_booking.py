@@ -18,9 +18,55 @@ logger = logging.getLogger("booking_tool")
 
 
 def validate_phone(phone: str) -> bool:
-    pattern = r'^\+?[\d\s\-()]{12,}$'
-    return bool(re.match(pattern, phone.strip()))
+    """Return True if the phone can be normalized to a Pakistani mobile number."""
+    return normalize_phone(phone) is not None
 
+
+def normalize_phone(phone: str) -> str | None:
+    """Normalize a Pakistani mobile number to international format +923XXXXXXXXX.
+
+    Supported inputs:
+    - 03001234567
+    - 3001234567
+    - 923001234567
+    - +923001234567
+    - 00923001234567
+    """
+    if not isinstance(phone, str):
+        return None
+
+    digits = re.sub(r"\D", "", phone)
+
+    if digits.startswith("00"):
+        digits = digits[2:]
+
+    if digits.startswith("92") and len(digits) == 12:
+        pass  # already in format 923XXXXXXXXX
+    elif digits.startswith("92") and len(digits) == 11:
+        pass  # already in format 92XXXXXXXXX
+    elif digits.startswith("0") and len(digits) == 11:
+        digits = "92" + digits[1:]  # 03XXXXXXXXX -> 923XXXXXXXXX
+    elif len(digits) == 10 and digits.startswith("3"):
+        digits = "92" + digits  # 3XXXXXXXXX -> 923XXXXXXXXX
+    else:
+        return None
+
+    if len(digits) == 12 and digits.startswith("92"):
+        return "+" + digits
+
+    return None
+
+
+def validate_age(age: int | str) -> bool:
+    """Validate patient age as a whole number between 0 and 120."""
+    if isinstance(age, str):
+        age = age.strip()
+        if not age.isdigit():
+            return False
+        age = int(age)
+    if not isinstance(age, int):
+        return False
+    return 0 <= age <= 120
 
 
 def _get_doctor_id_by_name(doctor_name: str) -> str | None:
@@ -38,6 +84,7 @@ def _get_doctor_id_by_name(doctor_name: str) -> str | None:
 async def appointments_booking(
     patient_name: str,
     phone_number: str,
+    patient_age: int | str,
     doctor_name: str,
     appointment_date: str,
     appointment_time: str,
@@ -47,11 +94,12 @@ async def appointments_booking(
     Book a new medical appointment for a patient.
 
     Args:
-        patient_name (str): Full name of the patient
-        phone_number (str): Contact phone number (12+ digits)
-        doctor_name (str): Name of the doctor to book with
-        appointment_date (str): Date in YYYY-MM-DD format
-        appointment_time (str): Time in HH:MM format (24-hour)
+        patient_name (str): Full name of the patient.
+        phone_number (str): Pakistani mobile phone number (accepts 0300..., 300..., +92300..., 0092300..., or 92300... formats; normalizes to +923XXXXXXXXX).
+        patient_age (int | str): Patient age in years. Must be a whole number between 0 and 120.
+        doctor_name (str): Name of the doctor to book with (must exist in database).
+        appointment_date (str): Date in YYYY-MM-DD format.
+        appointment_time (str): Time in HH:MM format (24-hour).
 
     Returns:
         dict: Dictionary containing:
@@ -63,14 +111,20 @@ async def appointments_booking(
 
     # ================= VALIDATION =================
 
-    # get doctor_id internally — user never sees this
-    doctor_id = _get_doctor_id_by_name(doctor_name)
-
     if not patient_name.strip():
         return {"status": "error", "message": "Patient name cannot be empty."}
 
-    if not validate_phone(phone_number):
-        return {"status": "error", "message": "Invalid phone number format."}
+    # Get doctor_id from ChromaDB
+    doctor_id = _get_doctor_id_by_name(doctor_name)
+    if not doctor_id:
+        return {"status": "error", "message": f"Doctor '{doctor_name}' not found."}
+
+    normalized_phone = normalize_phone(phone_number)
+    if not normalized_phone:
+        return {"status": "error", "message": "Invalid phone number format. Expect 11 digits starting with 0."}
+
+    if not validate_age(patient_age):
+        return {"status": "error", "message": "Invalid patient age. Must be a whole number between 0 and 120."}
 
     if not doctor_name.strip():
         return {"status": "error", "message": "Doctor name cannot be empty."}
@@ -93,12 +147,17 @@ async def appointments_booking(
     appointment_id = str(uuid.uuid4())[:8]
 
     thread_id = config.get("configurable", {}).get("thread_id")
+    
+    # Convert age to int
+    patient_age_int = int(patient_age) if isinstance(patient_age, str) else patient_age
+    
     new_appointment = {
         "appointment_id": appointment_id,
-        "patient_id":thread_id,
+        "patient_id": thread_id,
         "patient_name": patient_name.strip(),
-        "phone_number": phone_number.strip(),
-        "doctor_id": doctor_id.strip(),
+        "patient_age": patient_age_int,
+        "phone_number": normalized_phone,
+        "doctor_id": doctor_id,
         "doctor_name": doctor_name.strip(),
         "appointment_date": appointment_date,
         "appointment_time": appointment_time
@@ -152,7 +211,8 @@ async def appointments_booking(
     return {
         "status": "success",
         "message": f"Appointment booked with Dr. {doctor_name} on {appointment_date} at {appointment_time}.",
-        "appointment_id": appointment_id
+        "appointment_id": appointment_id,
+        "appointment": new_appointment
     }
 
 
