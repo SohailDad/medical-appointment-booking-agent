@@ -17,6 +17,9 @@ export class Appointment extends Document {
     patient_id: string;
 
     @Prop({ required: true })
+    patient_age: string;
+
+    @Prop({ required: true })
     phone_number: string;
 
     @Prop({ required: true })

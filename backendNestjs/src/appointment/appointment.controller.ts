@@ -17,16 +17,16 @@ export class AppointmentController {
         return this.appointmentService.book(bookAppointmentDto);
     }
 
-    @Patch('reschedule/:id')
+    @Patch('reschedule/:appointment_id')
     @Roles(UserRole.PATIENT)
-    async reschedule(@Param('id') id: string, @Body() rescheduleDto: RescheduleAppointmentDto) {
-        return this.appointmentService.reschedule(id, rescheduleDto);
+    async reschedule(@Param('appointment_id') appointment_id: string, @Body() rescheduleDto: RescheduleAppointmentDto) {
+        return this.appointmentService.reschedule(appointment_id, rescheduleDto);
     }
 
-    @Delete('cancel/:id')
+    @Delete('cancel/:appointment_id')
     @Roles(UserRole.PATIENT)
-    async cancel(@Param('id') id: string) {
-        return this.appointmentService.cancel(id);
+    async cancel(@Param('appointment_id') appointment_id: string) {
+        return this.appointmentService.cancel(appointment_id);
     }
 
     @Get('my')

@@ -31,9 +31,9 @@ export class AppointmentService {
     // change the id into appointment_id
     async reschedule(id: string, rescheduleDto: RescheduleAppointmentDto): Promise<Appointment> {
         const { appointment_date, appointment_time } = rescheduleDto;
-
+        console.log("id:",id)
         // Check if new slot is business as usual for double booking
-        const appointment = await this.appointmentModel.findById(id);
+        const appointment = await this.appointmentModel.findOne({appointment_id:id});
         if (!appointment) throw new NotFoundException('Appointment not found');
 
         const existing = await this.appointmentModel.findOne({
@@ -41,7 +41,7 @@ export class AppointmentService {
             appointment_date,
             appointment_time,
             status: AppointmentStatus.BOOKED,
-            _id: { $ne: id },
+            appointment_id: { $ne: id },
         });
 
         if (existing) {
@@ -55,7 +55,7 @@ export class AppointmentService {
     }
 
     async cancel(id: string): Promise<Appointment> {
-        const appointment = await this.appointmentModel.findById(id);
+        const appointment = await this.appointmentModel.findOne({appointment_id:id});
         if (!appointment) throw new NotFoundException('Appointment not found');
 
         appointment.status = AppointmentStatus.CANCELLED;

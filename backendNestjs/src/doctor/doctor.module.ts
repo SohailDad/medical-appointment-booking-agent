@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DoctorService } from './doctor.service';
 import { DoctorController } from './doctor.controller';
@@ -7,6 +9,8 @@ import { Appointment, AppointmentSchema } from '../appointment/schemas/appointme
 
 @Module({
   imports: [
+    ConfigModule,
+    HttpModule,
     MongooseModule.forFeature([
       { name: Doctor.name, schema: DoctorSchema },
       { name: Appointment.name, schema: AppointmentSchema },

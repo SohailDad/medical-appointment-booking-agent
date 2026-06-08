@@ -40,19 +40,19 @@ export class User extends Document {
   @Prop({ enum: ['pending', 'approved', 'rejected'] })
   status?: string;
 
-  @Prop({ required: true })
+  @Prop()
   specialization?: string;
 
-  @Prop({ required: true })
+  @Prop()
   degree?: string;
 
-  @Prop({ required: true })
+  @Prop()
   experience?: number;
 
-  @Prop({ required: true })
+  @Prop()
   licenceNumber?: string;
 
-  @Prop({ required: true })
+  @Prop()
   description?: string;
 }
 

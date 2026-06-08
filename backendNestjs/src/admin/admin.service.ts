@@ -223,6 +223,30 @@ export class AdminService {
                 description: user.description!,
                 availability: [] // Empty by default
             });
+
+            const url = this.configService.get<string>('CHATBOT_API_URL');
+            if (!url) {
+                throw new HttpException(
+                    'Chatbot API URL not configured',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
+
+            const chromadbDoctorData = {
+                "doctor_id": id,
+                "name": user.name,
+                "specialization": user.specialization,
+                "experience": user.experience,
+                "availability": [],
+                "description": user.description
+            }
+            await firstValueFrom(
+                this.httpService.post(`${url}/doctors/`, chromadbDoctorData)
+            );
+            return {
+                statusCode: HttpStatus.CREATED,
+                message: "Doctor created successfully"
+            };
         } catch (e:any) {
             // If they already exist, just ignore it.
             console.log("Doctor already exists in Doctor collection", e.message);

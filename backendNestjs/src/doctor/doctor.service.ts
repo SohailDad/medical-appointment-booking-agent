@@ -12,8 +12,8 @@ import { HttpService } from '@nestjs/axios';
 @Injectable()
 export class DoctorService {
     constructor(
-        // private readonly configService: ConfigService,
-        // private readonly httpService: HttpService,
+        private readonly configService: ConfigService,
+        private readonly httpService: HttpService,
         @InjectModel(Doctor.name) private doctorModel: Model<Doctor>,
         @InjectModel(Appointment.name) private appointmentModel: Model<Appointment>,
     ) { }
@@ -56,7 +56,24 @@ export class DoctorService {
             { new: true },
         );
         if (!doctor) throw new NotFoundException('Doctor profile not found');
+
+        // Sync updated availability with chatbot API (ChromaDB)
+        try {
+            const url = this.configService.get<string>('CHATBOT_API_URL');
+            if (url) {
+                const doctorId = doctor._id.toString();
+                const chromadbUpdate = {
+                    availability: doctor.availability,
+                };
+                await firstValueFrom(
+                    this.httpService.put(`${url}/doctors/${doctorId}`, chromadbUpdate),
+                );
+            }
+        } catch (err: any) {
+            console.error('Failed to sync availability to chatbot API:', err?.message ?? err);
+        }
         return doctor;
+
     }
 
     //Profile
