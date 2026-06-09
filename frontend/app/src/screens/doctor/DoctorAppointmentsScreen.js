@@ -97,7 +97,10 @@ const DoctorAppointmentsScreen = () => {
         fetchAppointments();
     }, []);
 
-    const filteredAppointments = allAppointments.filter(app => app.status === activeTab);
+    // ✅ FIXED: case-insensitive comparison to handle "Booked" vs "booked"
+    const filteredAppointments = allAppointments.filter(
+        app => app.status.toLowerCase() === activeTab.toLowerCase()
+    );
 
     const renderItem = ({ item }) => (
         <Card style={styles.card}>
@@ -110,7 +113,7 @@ const DoctorAppointmentsScreen = () => {
                         <Text style={styles.patientName}>{item.patient_name}</Text>
                         <Badge
                             text={item.status}
-                            type={item.status === 'completed' ? 'success' : 'primary'}
+                            type={item.status.toLowerCase() === 'completed' ? 'success' : 'primary'}
                         />
                     </View>
                     <Text style={styles.appointmentId}>ID: {item.appointment_id || 'N/A'}</Text>
@@ -133,7 +136,7 @@ const DoctorAppointmentsScreen = () => {
                     <Text style={styles.reportsButtonText}>View Reports</Text>
                 </TouchableOpacity>
 
-                {item.status === 'booked' && (
+                {item.status.toLowerCase() === 'booked' && (
                     <TouchableOpacity
                         style={styles.completedButton}
                         onPress={() => handleComplete(item._id)}

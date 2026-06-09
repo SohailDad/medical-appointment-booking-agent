@@ -611,17 +611,20 @@ const styles = StyleSheet.create({
     detailsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        flexWrap: 'wrap',        // ← allows items to wrap to next line
+    gap: 8, 
         marginBottom: 10,
     },
     detailItem: {
         flexDirection: 'row',
         alignItems: 'center',
+        flexShrink: 1,
     },
     detailText: {
         marginLeft: 6,
         fontSize: 14,
         color: colors.text,
+        flexShrink: 1,
     },
     slotsRow: {
         flexDirection: 'row',

@@ -231,8 +231,8 @@ const AdminUsersScreen = () => {
                         </View>
 
                         <View style={styles.doctorItem}>
-                            <Text style={styles.detailLabel}>Licence</Text>
-                            <Text style={styles.detailValue}>{item.licenceNumber || 'N/A'}</Text>
+                            <Text style={styles.detailLabel}>License</Text>
+                            <Text style={styles.detailValue}>{item.licenseNumber || 'N/A'}</Text>
                         </View>
 
                         <View style={styles.doctorItem}>
