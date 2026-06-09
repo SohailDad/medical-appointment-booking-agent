@@ -30,7 +30,7 @@ export class CreateDoctorDto {
     degree: string;
 
     @IsNotEmpty()
-    licenceNumber: string;
+    licenseNumber: string;
 
     @IsNumber()
     experience: number;

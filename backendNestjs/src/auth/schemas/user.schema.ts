@@ -50,7 +50,7 @@ export class User extends Document {
   experience?: number;
 
   @Prop()
-  licenceNumber?: string;
+  licenseNumber?: string;
 
   @Prop()
   description?: string;

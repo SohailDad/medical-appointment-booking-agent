@@ -26,7 +26,7 @@ export class AdminService {
         const existingDoctor = await this.doctorModel.findOne({
             email: createDoctorDto.email,
         });
-
+        console.log(existingDoctor)
         if (existingDoctor) {
             throw new ConflictException('Doctor with this email already exists');
         }
@@ -43,7 +43,7 @@ export class AdminService {
             const doctor = new this.doctorModel(createDoctorDto);
             await doctor.save();
             const chromadbDoctorData = {
-                "doctor_id": doctor._id,
+                "doctor_id": doctor.doctor_id,
                 "name": doctor.name,
                 "specialization": doctor.specialization,
                 "experience": doctor.experience,
@@ -212,17 +212,17 @@ export class AdminService {
 
         // Also add them to the Doctor collection so the rest of the system works
         try {
-            await this.createDoctor({
-                name: user.name,
-                email: user.email,
-                doctor_id: id,
-                specialization: user.specialization!,
-                degree: user.degree!,
-                licenceNumber: user.licenceNumber!,
-                experience: user.experience!,
-                description: user.description!,
-                availability: [] // Empty by default
-            });
+            // await this.createDoctor({
+            //     name: user.name,
+            //     email: user.email,
+            //     doctor_id: id,
+            //     specialization: user.specialization!,
+            //     degree: user.degree!,
+            //     licenseNumber: user.licenseNumber!,
+            //     experience: user.experience!,
+            //     description: user.description!,
+            //     availability: [] // Empty by default
+            // });
 
             const url = this.configService.get<string>('CHATBOT_API_URL');
             if (!url) {
@@ -231,7 +231,18 @@ export class AdminService {
                     HttpStatus.INTERNAL_SERVER_ERROR,
                 );
             }
-
+            const doctor = new this.doctorModel({
+                name: user.name,
+                email: user.email,
+                doctor_id: id,
+                specialization: user.specialization!,
+                degree: user.degree!,
+                licenseNumber: user.licenseNumber!,
+                experience: user.experience!,
+                description: user.description!,
+                availability: [] // Empty by default
+            });
+            await doctor.save();
             const chromadbDoctorData = {
                 "doctor_id": id,
                 "name": user.name,

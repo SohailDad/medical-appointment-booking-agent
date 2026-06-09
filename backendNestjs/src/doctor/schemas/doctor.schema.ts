@@ -41,7 +41,7 @@ export class Doctor extends Document {
     degree:string;
 
     @Prop({ required: true })
-    licenceNumber: string;
+    licenseNumber: string;
 
     @Prop({ required: true })
     experience: number;

@@ -21,11 +21,11 @@ export class DoctorService {
     async findAppointmentsByDoctor(doctorId: string): Promise<Appointment[]> {
         const doctorAppointments = await this.appointmentModel.find({
             doctor_id: doctorId.toString(),
-            status: {
-                $in: [AppointmentStatus.BOOKED, AppointmentStatus.COMPLETED],
-            },
+            // status: {
+            //     $in: [AppointmentStatus.BOOKED, AppointmentStatus.COMPLETED],
+            // },
         });
-
+        // console.log(doctorAppointments)
         return doctorAppointments;
     }
 
@@ -61,12 +61,12 @@ export class DoctorService {
         try {
             const url = this.configService.get<string>('CHATBOT_API_URL');
             if (url) {
-                const doctorId = doctor._id.toString();
+                const doctor_id = doctor.doctor_id.toString();
                 const chromadbUpdate = {
                     availability: doctor.availability,
                 };
                 await firstValueFrom(
-                    this.httpService.put(`${url}/doctors/${doctorId}`, chromadbUpdate),
+                    this.httpService.put(`${url}/doctors/availability/${doctor_id}`, chromadbUpdate),
                 );
             }
         } catch (err: any) {
