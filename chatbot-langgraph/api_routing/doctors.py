@@ -3,6 +3,8 @@ import uuid
 from fastapi import APIRouter, HTTPException
 from core.chroma import collection, embedder, sanitize_metadata
 from models.doctor import DoctorRequest, DoctorUpdateRequest, DoctorResponse
+import json
+import traceback
 
 router = APIRouter(prefix="/doctors", tags=["Doctors"])
 
@@ -81,6 +83,89 @@ async def update_doctor(doctor_id: str, body: DoctorUpdateRequest):
             status_code=500,
             detail=f"Failed to update doctor: {str(e)}"
         )
+
+
+
+@router.put("/availability/{doctor_id}", response_model=DoctorResponse)
+async def update_doctor_availability(doctor_id: str, body: dict):
+    try:
+        existing = collection.get(ids=[doctor_id])
+        if not existing["ids"]:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Doctor with id '{doctor_id}' not found."
+            )
+
+        old_meta = existing["metadatas"][0]
+
+        availability = body.get("availability")
+        if not availability:
+            raise HTTPException(
+                status_code=400,
+                detail="Availability field is required and cannot be empty."
+            )
+
+        # ChromaDB only supports scalar metadata values (str, int, float, bool).
+        # NestJS sends availability as a list of dicts — must be JSON-stringified.
+        if isinstance(availability, list):
+            availability_serialized = json.dumps(availability)
+        elif isinstance(availability, str):
+            json.loads(availability)  # validate it's parseable
+            availability_serialized = availability
+        else:
+            raise HTTPException(status_code=400, detail="Availability must be a list.")
+
+        merged = {**old_meta, "availability": availability_serialized}
+
+        description = old_meta.get("description", "")
+        embedding = embedder.encode(description).tolist()
+
+        collection.update(
+            ids=[doctor_id],
+            metadatas=[sanitize_metadata(merged)],
+            embeddings=[embedding],
+            documents=[description],
+        )
+
+        # Return parsed list so NestJS gets [{day, startTime, endTime}, ...]
+        return {
+            "message": "Doctor availability updated successfully.",
+            "doctor": {**merged, "availability": json.loads(availability_serialized)}
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Log the full traceback so you can see the real error
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update doctor availability: {str(e)}"
+        )
+
+def sanitize_metadata(metadata: dict) -> dict:
+    sanitized = {}
+    for key, value in metadata.items():
+        if isinstance(value, (str, int, float, bool)):
+            sanitized[key] = value
+        elif value is None:
+            sanitized[key] = ""
+        elif isinstance(value, (list, dict)):
+            # Serialize complex types — ChromaDB rejects them otherwise
+            sanitized[key] = json.dumps(value)
+        else:
+            sanitized[key] = str(value)
+    return sanitized
+
+def parse_doctor_metadata(meta: dict) -> dict:
+    """Parse JSON-stringified fields back to their original types."""
+    result = {**meta}
+    if "availability" in result and isinstance(result["availability"], str):
+        try:
+            result["availability"] = json.loads(result["availability"])
+        except (json.JSONDecodeError, TypeError):
+            result["availability"] = []
+    return result
 
 
 @router.delete("/{doctor_id}", response_model=DoctorResponse)

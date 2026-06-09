@@ -3,7 +3,8 @@ import logging
 import httpx
 from langchain.tools import tool
 from langchain_core.runnables import RunnableConfig
-from utilities import validate_date, validate_time  # removed check_conflict
+from utilities.validate_date import validate_date
+from utilities.validate_time import clean_time_input, normalize_time
 from core.config import NEST_BACKEND_URL
 
 
@@ -24,7 +25,7 @@ def appointments_reschedule(
     Args:
         appointment_id (str): ID of the appointment to reschedule.
         new_date (str): New date in YYYY-MM-DD format.
-        new_time (str): New time in HH:MM format.
+        new_time (str): New time in 24-hour HH:MM format or 12-hour AM/PM format (e.g. 10pm, 10:00pm).
 
     Returns:
         dict: Success or error message.
@@ -37,8 +38,10 @@ def appointments_reschedule(
     if not validate_date(new_date):
         return {"status": "error", "message": "Invalid date or date is in the past."}
 
-    if not validate_time(new_time):
-        return {"status": "error", "message": "Invalid time format. Use HH:MM."}
+    new_time_raw = clean_time_input(new_time)
+    normalized_time = normalize_time(new_time_raw)
+    if not normalized_time:
+        return {"status": "error", "message": "Invalid time format. Use 24-hour HH:MM or 12-hour AM/PM (e.g. 10pm)."}
 
     # ─────────────────────────────────────────
     # AUTH
@@ -60,10 +63,10 @@ def appointments_reschedule(
 
     try:
         response = httpx.patch(
-            f"{NEST_BACKEND_URL}/appointments/{appointment_id}/reschedule",
+            f"{NEST_BACKEND_URL}/appointments/reschedule/{appointment_id}",
             json={
                 "appointment_date": new_date,
-                "appointment_time": new_time,
+                "appointment_time": normalized_time,
             },
             headers=headers,
             timeout=10.0

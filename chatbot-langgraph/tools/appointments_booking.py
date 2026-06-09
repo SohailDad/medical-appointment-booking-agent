@@ -6,9 +6,8 @@ import logging
 import httpx
 from dotenv import load_dotenv
 from langchain_core.runnables import RunnableConfig
-from utilities.check_conflict import check_conflict
 from utilities.validate_date import validate_date
-from utilities.validate_time import validate_time
+from utilities.validate_time import clean_time_input, normalize_time
 from core.chroma import collection, embedder
 from core.config import NEST_BACKEND_URL
 
@@ -99,7 +98,7 @@ async def appointments_booking(
         patient_age (int | str): Patient age in years. Must be a whole number between 0 and 120.
         doctor_name (str): Name of the doctor to book with (must exist in database).
         appointment_date (str): Date in YYYY-MM-DD format.
-        appointment_time (str): Time in HH:MM format (24-hour).
+        appointment_time (str): Time in 24-hour HH:MM format or 12-hour AM/PM format (e.g. 10pm, 10:00pm).
 
     Returns:
         dict: Dictionary containing:
@@ -121,7 +120,7 @@ async def appointments_booking(
 
     normalized_phone = normalize_phone(phone_number)
     if not normalized_phone:
-        return {"status": "error", "message": "Invalid phone number format. Expect 11 digits starting with 0."}
+        return {"status": "error", "message": "Invalid phone number format. Expect Pakistani number in accepted format."}
 
     if not validate_age(patient_age):
         return {"status": "error", "message": "Invalid patient age. Must be a whole number between 0 and 120."}
@@ -129,18 +128,13 @@ async def appointments_booking(
     if not doctor_name.strip():
         return {"status": "error", "message": "Doctor name cannot be empty."}
 
+    appointment_time_raw = clean_time_input(appointment_time)
+    normalized_time = normalize_time(appointment_time_raw)
+    if not normalized_time:
+        return {"status": "error", "message": "Invalid time format. Use 24-hour HH:MM or 12-hour AM/PM (e.g. 10pm)."}
+
     if not validate_date(appointment_date):
         return {"status": "error", "message": "Invalid or past date."}
-
-    if not validate_time(appointment_time):
-        return {"status": "error", "message": "Invalid time format (HH:MM)."}
-
-    # Conflict check should ideally happen in backend DB
-    if check_conflict(doctor_name, appointment_date, appointment_time):
-        return {
-            "status": "error",
-            "message": f"Dr. {doctor_name} already has an appointment at that time."
-        }
 
     # ================= CREATE APPOINTMENT =================
 
@@ -150,7 +144,6 @@ async def appointments_booking(
     
     # Convert age to int
     patient_age_int = int(patient_age) if isinstance(patient_age, str) else patient_age
-    
     new_appointment = {
         "appointment_id": appointment_id,
         "patient_id": thread_id,
@@ -160,7 +153,8 @@ async def appointments_booking(
         "doctor_id": doctor_id,
         "doctor_name": doctor_name.strip(),
         "appointment_date": appointment_date,
-        "appointment_time": appointment_time
+        "appointment_time": appointment_time_raw,
+        "appointment_time_normalized": normalized_time
         # "status": "confirmed",
         # "created_at": datetime.utcnow().isoformat()
     }
@@ -210,7 +204,7 @@ async def appointments_booking(
 
     return {
         "status": "success",
-        "message": f"Appointment booked with Dr. {doctor_name} on {appointment_date} at {appointment_time}.",
+        "message": f"Appointment booked with Dr. {doctor_name} on {appointment_date} at {appointment_time_raw}.",
         "appointment_id": appointment_id,
         "appointment": new_appointment
     }

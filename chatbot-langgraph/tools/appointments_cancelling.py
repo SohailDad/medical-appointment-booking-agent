@@ -40,10 +40,9 @@ def appointments_cancelling(
     # ─────────────────────────────────────────
     # CALL NESTJS — let NestJS handle everything
     # ─────────────────────────────────────────
-
     try:
-        response = httpx.patch(
-            f"{NEST_BACKEND_URL}/appointments/{appointment_id}/cancel",
+        response = httpx.delete(
+            f"{NEST_BACKEND_URL}/appointments/cancel/{appointment_id}",
             headers=headers,
             timeout=10.0
         )

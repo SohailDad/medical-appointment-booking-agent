@@ -20,11 +20,28 @@ tools = [
 
 llm_with_tools = llm.bind_tools(tools)
 
+
+def truncate_messages(messages: list[BaseMessage], max_history: int = 5) -> list[BaseMessage]:
+    """Keep only the last max_history non-system messages plus any system messages."""
+    if not isinstance(messages, list) or len(messages) <= max_history:
+        return messages
+
+    system_messages = [m for m in messages if getattr(m, "type", None) == "system"]
+    non_system_messages = [m for m in messages if getattr(m, "type", None) != "system"]
+
+    if len(non_system_messages) <= max_history:
+        return messages
+
+    recent = non_system_messages[-max_history:]
+    return system_messages + recent
+
+
 class ChatState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
 def chat_node(state: ChatState):
-    response = llm_with_tools.invoke(state["messages"])
+    messages = truncate_messages(state["messages"], max_history=5)
+    response = llm_with_tools.invoke(messages)
     return {"messages": [response]}
 
 tool_node = ToolNode(tools)
