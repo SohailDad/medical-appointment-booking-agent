@@ -153,8 +153,7 @@ async def appointments_booking(
         "doctor_id": doctor_id,
         "doctor_name": doctor_name.strip(),
         "appointment_date": appointment_date,
-        "appointment_time": appointment_time_raw,
-        "appointment_time_normalized": normalized_time
+        "appointment_time": normalized_time,
         # "status": "confirmed",
         # "created_at": datetime.utcnow().isoformat()
     }

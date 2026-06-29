@@ -1,5 +1,9 @@
 # AI Powered Clinical Appointment Booking System
 
+## Mobile App Screens Pictures
+![alt text](projectDesign/Screenshot_20260608-211145.jpg) ![alt text](projectDesign/Screenshot_20260608-211150.jpg) ![alt text](projectDesign/Screenshot_20260608-211205.jpg) ![alt text](projectDesign/Screenshot_20260609-190340.jpg) ![alt text](projectDesign/Screenshot_20260609-190404.jpg) ![alt text](projectDesign/Screenshot_20260609-190554.jpg) ![alt text](projectDesign/Screenshot_20260609-191945.jpg) ![alt text](projectDesign/Screenshot_20260609-192017.jpg) ![alt text](projectDesign/Screenshot_20260609-192028.jpg) ![alt text](projectDesign/Screenshot_20260609-194318.jpg) ![alt text](projectDesign/Screenshot_20260609-194322.jpg) ![alt text](projectDesign/Screenshot_20260609-222810.jpg) ![alt text](projectDesign/Screenshot_20260609-223206.jpg) ![alt text](projectDesign/Screenshot_20260609-223627.jpg) ![alt text](projectDesign/Screenshot_20260609-233718.jpg) ![alt text](projectDesign/Screenshot_20260609-233732.jpg) ![alt text](projectDesign/Screenshot_20260609-233742.jpg) ![alt text](projectDesign/Screenshot_20260609-233750.jpg) ![alt text](projectDesign/Screenshot_20260609-234143.jpg) ![alt text](projectDesign/Screenshot_20260609-234610.jpg)
+
+
 ## Project Overview
 
 The AI Powered Clinical Appointment Booking System is a smart healthcare application that allows users to interact with an AI chatbot by describing their symptoms. The AI analyzes the symptoms, suggests relevant doctors or specialists, and helps users book, manage, and schedule medical appointments easily and efficiently.

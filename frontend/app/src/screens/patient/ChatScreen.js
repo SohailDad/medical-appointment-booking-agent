@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -17,6 +17,25 @@ import apiClient from '../../api/client';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ─── Memoized message bubble — only re-renders when its own data changes ──────
+const MessageItem = React.memo(({ item }) => {
+    const isUser = item.sender === 'user';
+    return (
+        <View style={[styles.messageContainer, isUser ? styles.userMessage : styles.botMessage]}>
+            {!isUser && (
+                <View style={styles.botAvatar}>
+                    <MaterialCommunityIcons name="robot" size={20} color={colors.white} />
+                </View>
+            )}
+            <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.botBubble]}>
+                <Text style={[styles.messageText, isUser ? styles.userText : styles.botText]}>
+                    {item.text}
+                </Text>
+            </View>
+        </View>
+    );
+});
+
 const ChatScreen = ({ route }) => {
     const navigation = useNavigation();
     const [messages, setMessages] = useState([
@@ -27,62 +46,20 @@ const ChatScreen = ({ route }) => {
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const flatListRef = useRef();
 
-    useEffect(() => {
-        fetchHistory();
-    }, []);
-
-    // Handle initial message from navigation (e.g., reschedule/cancel)
-    useEffect(() => {
-        if (route.params?.message) {
-            sendMessage(route.params.message);
-            // Clear params to avoid resending on re-render
-            navigation.setParams({ message: null });
-        }
-    }, [route.params?.message]);
-
-    useEffect(() => {
-        navigation.setOptions({ title: 'Chat' });
-    }, [navigation]);
-
-    const fetchHistory = async () => {
-        try {
-            const response = await apiClient.get('/chat/history');
-            if (response.data && response.data.conversation) {
-                const formattedMessages = response.data.conversation.map((msg, index) => ({
-                    id: msg._id || `hist-${index}-${Date.now()}`,
-                    text: msg.content,
-                    sender: msg.role // Directly use 'user' or 'assistant' from DB
-                }));
-                
-                if (formattedMessages.length > 0) {
-                    setMessages(formattedMessages);
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching chat history:', error);
-            // Optionally show a message in chat that history failed
-            const errorMsg = {
-                id: 'err-hist-' + Date.now(),
-                text: "Note: Could not load previous chat history.",
-                sender: 'assistant'
-            };
-            setMessages(prev => [...prev, errorMsg]);
-        } finally {
-            setIsLoadingHistory(false);
-        }
-    };
-
-    const sendMessage = async (overrideText = null) => {
+    const sendMessage = useCallback(async (overrideText = null) => {
         const messageToSend = overrideText || inputText;
         if (!messageToSend.trim()) return;
 
-        const currentText = messageToSend;
-        const userMessage = { id: Date.now().toString(), text: currentText, sender: 'user' };
-        const botMessageId = (Date.now() + 1).toString();
-        const botPlaceholder = { id: botMessageId, text: '', sender: 'assistant' };
-        
-        // Add both messages in a single update to prevent unnecessary re-renders
-        setMessages(prev => [...prev, userMessage, botPlaceholder]);
+        const currentText = messageToSend.trim();
+        const botMessageId = `bot-${Date.now()}`;
+
+        const userMessage = {
+            id: `user-${Date.now()}`,
+            text: currentText,
+            sender: 'user'
+        };
+
+        setMessages(prev => [...prev, userMessage]);
         if (!overrideText) setInputText('');
         setIsTyping(true);
 
@@ -96,6 +73,7 @@ const ChatScreen = ({ route }) => {
             let accumulatedText = '';
             let buffer = '';
             let processedIndex = 0;
+            let botBubbleAdded = false;
 
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 3 || xhr.readyState === 4) {
@@ -132,53 +110,68 @@ const ChatScreen = ({ route }) => {
                         }
                     }
 
-                    // Batch the text update for this chunk
                     if (hasUpdates) {
-                        setMessages(prev => prev.map(msg =>
-                            msg.id === botMessageId ? { ...msg, text: accumulatedText } : msg
-                        ));
+                        if (!botBubbleAdded) {
+                            botBubbleAdded = true;
+                            setMessages(prev => [
+                                ...prev,
+                                { id: botMessageId, text: accumulatedText, sender: 'assistant' }
+                            ]);
+                        } else {
+                            setMessages(prev =>
+                                prev.map(msg =>
+                                    msg.id === botMessageId
+                                        ? { ...msg, text: accumulatedText }
+                                        : msg
+                                )
+                            );
+                        }
                     }
                 }
 
                 if (xhr.readyState === 4) {
                     setIsTyping(false);
+
                     if (xhr.status !== 200 && xhr.status !== 201 && xhr.status !== 0) {
-                        let serverErrorMessage = "I'm sorry, I'm having trouble connecting to the server right now. Please try again in a few moments.";
+                        let serverErrorMessage =
+                            "I'm sorry, I'm having trouble connecting to the server right now. Please try again in a few moments.";
                         try {
                             const errorObj = JSON.parse(xhr.responseText);
                             if (errorObj.message) serverErrorMessage = errorObj.message;
                             else if (errorObj.error) serverErrorMessage = errorObj.error;
                         } catch (e) {
-                            // If response is not JSON, check if it's a known status
                             if (xhr.status === 500) {
-                                serverErrorMessage = "The medical assistant is currently unavailable due to a server error. Please try again later.";
+                                serverErrorMessage =
+                                    "The medical assistant is currently unavailable due to a server error. Please try again later.";
                             }
                         }
-                        
-                        const errorResponse = {
-                            id: (Date.now() + 3).toString(),
-                            text: serverErrorMessage,
-                            sender: 'assistant'
-                        };
+
                         setMessages(prev => {
-                            // Remove placeholder and add error
-                            const filtered = prev.filter(msg => msg.id !== botMessageId || msg.text !== '');
-                            return [...filtered, errorResponse];
+                            const filtered = prev.filter(
+                                msg => !(msg.id === botMessageId && msg.text === '')
+                            );
+                            return [
+                                ...filtered,
+                                {
+                                    id: `err-${Date.now()}`,
+                                    text: serverErrorMessage,
+                                    sender: 'assistant'
+                                }
+                            ];
                         });
                     }
                 }
             };
 
             xhr.onerror = () => {
-                const errorResponse = {
-                    id: (Date.now() + 4).toString(),
-                    text: "Network request failed. Please check your internet connection.",
-                    sender: 'assistant'
-                };
-                setMessages(prev => {
-                    const filtered = prev.filter(msg => msg.id !== botMessageId || msg.text !== '');
-                    return [...filtered, errorResponse];
-                });
+                setMessages(prev => [
+                    ...prev.filter(msg => !(msg.id === botMessageId && msg.text === '')),
+                    {
+                        id: `err-net-${Date.now()}`,
+                        text: 'Network request failed. Please check your internet connection.',
+                        sender: 'assistant'
+                    }
+                ]);
                 setIsTyping(false);
             };
 
@@ -188,74 +181,91 @@ const ChatScreen = ({ route }) => {
             console.error('Chat error', error);
             setIsTyping(false);
         }
+    }, [inputText]);
+
+    useEffect(() => {
+        fetchHistory();
+    }, []);
+
+    useEffect(() => {
+        if (route.params?.message) {
+            sendMessage(route.params.message);
+            navigation.setParams({ message: null });
+        }
+    }, [route.params?.message]);
+
+    useEffect(() => {
+        navigation.setOptions({ title: 'Chat' });
+    }, [navigation]);
+
+    const fetchHistory = async () => {
+        try {
+            const response = await apiClient.get('/chat/history');
+            if (response.data?.conversation) {
+                const formattedMessages = response.data.conversation.map((msg, index) => ({
+                    id: msg._id || `hist-${index}-${Date.now()}`,
+                    text: msg.content,
+                    sender: msg.role
+                }));
+                if (formattedMessages.length > 0) {
+                    setMessages(formattedMessages);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching chat history:', error);
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: `err-hist-${Date.now()}`,
+                    text: 'Note: Could not load previous chat history.',
+                    sender: 'assistant'
+                }
+            ]);
+        } finally {
+            setIsLoadingHistory(false);
+        }
     };
 
     const handleAction = (data, messageId) => {
         setIsTyping(false);
-        if (!data || !data.action) return;
+        if (!data?.action) return;
 
         if (data.action === 'PAYMENT_REQUIRED') {
             navigation.navigate('Payment', {
                 amount: data.amount,
                 appointmentData: data.appointmentData,
                 onPaymentComplete: (paymentRes) => {
-                    if (paymentRes.action === 'BOOKING_CONFIRMED') {
-                        const confirmMsg = {
-                            id: Date.now().toString(),
-                            text: "Appointment booked successfully",
-                            sender: 'assistant'
-                        };
-                        setMessages(prev => [...prev, confirmMsg]);
-                    } else if (paymentRes.action === 'ERROR') {
-                        const errorMsg = {
-                            id: Date.now().toString(),
-                            text: paymentRes.message || "Payment failed",
-                            sender: 'assistant'
-                        };
-                        setMessages(prev => [...prev, errorMsg]);
-                    }
+                    const text =
+                        paymentRes.action === 'BOOKING_CONFIRMED'
+                            ? 'Appointment booked successfully'
+                            : paymentRes.message || 'Payment failed';
+                    setMessages(prev => [
+                        ...prev,
+                        { id: Date.now().toString(), text, sender: 'assistant' }
+                    ]);
                 }
             });
         } else if (data.action === 'BOOKING_CONFIRMED') {
-            const confirmMsg = {
-                id: Date.now().toString(),
-                text: "Appointment booked successfully",
-                sender: 'assistant'
-            };
-            setMessages(prev => [...prev, confirmMsg]);
+            setMessages(prev => [
+                ...prev,
+                { id: Date.now().toString(), text: 'Appointment booked successfully', sender: 'assistant' }
+            ]);
         } else if (data.action === 'ERROR') {
-            const errorMsg = {
-                id: Date.now().toString(),
-                text: data.message || "Error occurred",
-                sender: 'assistant'
-            };
-            setMessages(prev => [...prev, errorMsg]);
+            setMessages(prev => [
+                ...prev,
+                { id: Date.now().toString(), text: data.message || 'Error occurred', sender: 'assistant' }
+            ]);
         }
     };
+
+    // ─── Stable renderItem — useCallback with no deps since MessageItem is memoized ─
+    const renderMessage = useCallback(({ item }) => <MessageItem item={item} />, []);
 
     useEffect(() => {
         if (flatListRef.current) {
             setTimeout(() => flatListRef.current.scrollToEnd({ animated: true }), 100);
         }
     }, [messages]);
-
-    const renderMessage = ({ item }) => {
-        const isUser = item.sender === 'user';
-        return (
-            <View style={[styles.messageContainer, isUser ? styles.userMessage : styles.botMessage]}>
-                {!isUser && (
-                    <View style={styles.botAvatar}>
-                        <MaterialCommunityIcons name="robot" size={20} color={colors.white} />
-                    </View>
-                )}
-                <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.botBubble]}>
-                    <Text style={[styles.messageText, isUser ? styles.userText : styles.botText]}>
-                        {item.text}
-                    </Text>
-                </View>
-            </View>
-        );
-    };
 
     return (
         <SafeAreaView style={styles.container} edges={['right', 'left', 'bottom']}>
@@ -271,6 +281,10 @@ const ChatScreen = ({ route }) => {
                     renderItem={renderMessage}
                     contentContainerStyle={styles.listContent}
                     keyboardShouldPersistTaps="handled"
+                    removeClippedSubviews={true}
+                    maxToRenderPerBatch={10}
+                    windowSize={5}
+                    initialNumToRender={15}
                 />
 
                 {isLoadingHistory && (
@@ -290,14 +304,18 @@ const ChatScreen = ({ route }) => {
                     <TextInput
                         style={styles.input}
                         placeholder="Type your message..."
+                        placeholderTextColor={colors.textSecondary}
                         value={inputText}
                         onChangeText={setInputText}
+                        onSubmitEditing={() => sendMessage()}
+                        blurOnSubmit={false}
                         multiline
+                        textAlignVertical="center"
                         maxLength={500}
                     />
                     <TouchableOpacity
-                        style={[styles.sendButton, !inputText.trim() && styles.disabledSend]}
-                        onPress={sendMessage}
+                        style={[styles.sendButton, (!inputText.trim() || isTyping) && styles.disabledSend]}
+                        onPress={() => sendMessage()}
                         disabled={!inputText.trim() || isTyping}
                     >
                         <MaterialCommunityIcons name="send" size={24} color={colors.white} />
@@ -389,10 +407,12 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
         borderRadius: 24,
         paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingVertical: Platform.OS === 'ios' ? 10 : 6,
         fontSize: 15,
+        minHeight: 44,
         maxHeight: 100,
         color: colors.text,
+        textAlignVertical: 'center',
     },
     sendButton: {
         width: 44,
