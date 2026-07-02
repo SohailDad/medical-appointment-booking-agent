@@ -1,7 +1,49 @@
 # AI Powered Clinical Appointment Booking System
 
 ## Mobile App Screens Pictures
-![alt text](projectDesign/Screenshot_20260608-211145.jpg) ![alt text](projectDesign/Screenshot_20260608-211150.jpg) ![alt text](projectDesign/Screenshot_20260608-211205.jpg) ![alt text](projectDesign/Screenshot_20260609-190340.jpg) ![alt text](projectDesign/Screenshot_20260609-190404.jpg) ![alt text](projectDesign/Screenshot_20260609-190554.jpg) ![alt text](projectDesign/Screenshot_20260609-191945.jpg) ![alt text](projectDesign/Screenshot_20260609-192017.jpg) ![alt text](projectDesign/Screenshot_20260609-192028.jpg) ![alt text](projectDesign/Screenshot_20260609-194318.jpg) ![alt text](projectDesign/Screenshot_20260609-194322.jpg) ![alt text](projectDesign/Screenshot_20260609-222810.jpg) ![alt text](projectDesign/Screenshot_20260609-223206.jpg) ![alt text](projectDesign/Screenshot_20260609-223627.jpg) ![alt text](projectDesign/Screenshot_20260609-233718.jpg) ![alt text](projectDesign/Screenshot_20260609-233732.jpg) ![alt text](projectDesign/Screenshot_20260609-233742.jpg) ![alt text](projectDesign/Screenshot_20260609-233750.jpg) ![alt text](projectDesign/Screenshot_20260609-234143.jpg) ![alt text](projectDesign/Screenshot_20260609-234610.jpg)
+
+<table>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260608-211145.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260608-211150.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260608-211205.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-190340.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-190404.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-190554.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-191945.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-192017.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-192028.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-194318.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-194322.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-222810.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-223206.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-223627.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-233718.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-233732.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-233742.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-233750.jpg" width="300" height="600"></td>
+  </tr>
+  <tr>
+    <td><img src="projectDesign/Screenshot_20260609-234143.jpg" width="300" height="600"></td>
+    <td><img src="projectDesign/Screenshot_20260609-234610.jpg" width="300" height="600"></td>
+  </tr>
+</table>
 
 
 ## Project Overview
