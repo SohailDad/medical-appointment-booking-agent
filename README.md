@@ -10,32 +10,26 @@
   </tr>
   <tr>
     <td><img src="projectDesign/Screenshot_20260609-190340.jpg" width="300" height="600"></td>
-  </tr>
-  <tr>
     <td><img src="projectDesign/Screenshot_20260609-190404.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-190554.jpg" width="300" height="600"></td>
   </tr>
   <tr>
     <td><img src="projectDesign/Screenshot_20260609-191945.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-192017.jpg" width="300" height="600"></td>
-  </tr>
-  <tr>
     <td><img src="projectDesign/Screenshot_20260609-192028.jpg" width="300" height="600"></td>
-    <td><img src="projectDesign/Screenshot_20260609-194318.jpg" width="300" height="600"></td>
   </tr>
   <tr>
+    <td><img src="projectDesign/Screenshot_20260609-194318.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-194322.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-222810.jpg" width="300" height="600"></td>
   </tr>
   <tr>
     <td><img src="projectDesign/Screenshot_20260609-223206.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-223627.jpg" width="300" height="600"></td>
-  </tr>
-  <tr>
     <td><img src="projectDesign/Screenshot_20260609-233718.jpg" width="300" height="600"></td>
-    <td><img src="projectDesign/Screenshot_20260609-233732.jpg" width="300" height="600"></td>
   </tr>
   <tr>
+    <td><img src="projectDesign/Screenshot_20260609-233732.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-233742.jpg" width="300" height="600"></td>
     <td><img src="projectDesign/Screenshot_20260609-233750.jpg" width="300" height="600"></td>
   </tr>
