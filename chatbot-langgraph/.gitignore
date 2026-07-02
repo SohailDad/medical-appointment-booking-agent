@@ -4,6 +4,11 @@ env/
 .venv/
 /venv
 
+# ignore files
+fastapi_serverr.py
+langgraph_agent.txt
+medical_agent.py
+
 # Database
 chatbot.db
 
